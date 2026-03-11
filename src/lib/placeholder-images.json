@@ -1,3 +1,70 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "dosha-detection",
+      "description": "A serene image representing personalized dosha detection, perhaps with natural elements.",
+      "imageUrl": "https://picsum.photos/seed/dosha/1200/800",
+      "imageHint": "serene nature"
+    },
+    {
+      "id": "daily-tips",
+      "description": "An image showing someone reading or meditating, representing daily Ayurvedic tips.",
+      "imageUrl": "https://picsum.photos/seed/tips/1200/800",
+      "imageHint": "meditation lifestyle"
+    },
+    {
+      "id": "expert-consultations",
+      "description": "A professional and warm image of a doctor consulting with a patient.",
+      "imageUrl": "https://picsum.photos/seed/consult/1200/800",
+      "imageHint": "doctor consultation"
+    },
+    {
+      "id": "wellness-webinars",
+      "description": "An engaging image of an online webinar or a group of people learning.",
+      "imageUrl": "https://picsum.photos/seed/webinar/1200/800",
+      "imageHint": "online webinar"
+    },
+    {
+      "id": "lifestyle-activities",
+      "description": "An image of someone doing yoga or preparing a healthy meal.",
+      "imageUrl": "https://picsum.photos/seed/yoga/1200/800",
+      "imageHint": "yoga healthy"
+    },
+    {
+      "id": "product-marketplace",
+      "description": "An aesthetic flat-lay of Ayurvedic products.",
+      "imageUrl": "https://picsum.photos/seed/products/1200/800",
+      "imageHint": "ayurvedic products"
+    },
+    {
+      "id": "hero-background",
+      "description": "A calm herbal background for the hero section.",
+      "imageUrl": "https://picsum.photos/seed/herbalbg/1920/1080",
+      "imageHint": "herbal background"
+    },
+    {
+      "id": "login-background",
+      "description": "An Ayurvedic themed background for the login page.",
+      "imageUrl": "https://picsum.photos/seed/loginbg/1920/1080",
+      "imageHint": "ayurveda pattern"
+    },
+    {
+      "id": "vata-dosha",
+      "description": "An image representing the Vata dosha, suggesting movement and air.",
+      "imageUrl": "https://picsum.photos/seed/vata/400/300",
+      "imageHint": "wind dry"
+    },
+    {
+      "id": "pitta-dosha",
+      "description": "An image representing the Pitta dosha, suggesting fire and intensity.",
+      "imageUrl": "https://picsum.photos/seed/pitta/400/300",
+      "imageHint": "fire sun"
+    },
+    {
+      "id": "kapha-dosha",
+      "description": "An image representing the Kapha dosha, suggesting earth and stability.",
+      "imageUrl": "https://picsum.photos/seed/kapha/400/300",
+      "imageHint": "earth water"
+    }
+  ]
 }
