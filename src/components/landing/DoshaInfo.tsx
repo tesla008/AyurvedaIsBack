@@ -1,5 +1,7 @@
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 const doshas = [
   {
@@ -72,6 +74,16 @@ export default function DoshaInfo() {
               </CardContent>
             </Card>
           ))}
+        </div>
+        <div className="mt-12 text-center">
+          <Button
+            asChild
+            className="h-auto max-w-md whitespace-normal rounded-[10px] bg-accent px-7 py-3.5 text-center text-base font-semibold text-accent-foreground transition-transform duration-200 ease-in-out hover:scale-105 hover:bg-accent/90"
+          >
+            <Link href="/quiz">
+              Take the free test now and get flat 20% off on subscription
+            </Link>
+          </Button>
         </div>
       </div>
     </section>

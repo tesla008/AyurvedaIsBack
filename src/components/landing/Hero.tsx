@@ -26,8 +26,8 @@ export default function Hero() {
               <Button asChild size="lg" className="text-base">
                 <Link href="/login">Start Your Wellness Journey</Link>
               </Button>
-              <Button asChild size="lg" variant="secondary" className="text-base">
-                <Link href="/quiz">Take Dosha Test</Link>
+              <Button asChild size="lg" className="text-base font-bold bg-accent text-accent-foreground hover:bg-accent/90">
+                <Link href="/quiz">Take the free test now</Link>
               </Button>
             </div>
           </div>
