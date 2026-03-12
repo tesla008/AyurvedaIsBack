@@ -78,9 +78,12 @@ export default function DoshaInfo() {
             className="h-auto rounded-[10px] bg-accent px-7 py-3.5 text-center text-base font-semibold text-accent-foreground transition-transform duration-200 ease-in-out hover:scale-105 hover:bg-accent/90"
           >
             <Link href="/quiz">
-              Take the free dosha test now
+              Take the free test now
             </Link>
           </Button>
+          <p className="mt-2 text-sm font-medium text-foreground">
+            Get <span className="font-semibold">20% off</span> after you get your dosha
+          </p>
         </div>
       </div>
     </section>
