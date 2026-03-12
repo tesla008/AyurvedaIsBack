@@ -36,9 +36,9 @@ export default function Footer() {
             </div>
             <div className="grid gap-2">
               <h3 className="font-headline text-lg font-semibold">Support</h3>
-              <Link href="#" className="hover:text-primary">Contact Us</Link>
-              <Link href="#" className="hover:text-primary">FAQ</Link>
-              <Link href="#" className="hover:text-primary">Privacy Policy</Link>
+              <Link href="/contact" className="hover:text-primary">Contact Us</Link>
+              <Link href="/faq" className="hover:text-primary">FAQ</Link>
+              <Link href="/privacy-policy" className="hover:text-primary">Privacy Policy</Link>
             </div>
             <div className="grid gap-2">
               <h3 className="font-headline text-lg font-semibold">Contact</h3>
