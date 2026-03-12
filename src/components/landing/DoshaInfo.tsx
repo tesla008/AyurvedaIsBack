@@ -7,34 +7,31 @@ const doshas = [
   {
     name: 'Vata',
     imageUrl: 'https://exlaucgslmfiakllbtnq.supabase.co/storage/v1/object/public/AyurvedaIsBack/Vata.png',
-    description: 'The energy of movement. Governs breathing, muscle movement, and nerve impulses.',
+    description: 'Energy of movement',
     details: {
-      'Body Type': 'Lean, light frame, agile',
-      'Emotional Tendencies': 'Creative, energetic, but prone to anxiety',
-      'Diet Suggestions': 'Warm, moist, grounding foods',
-      'Lifestyle Habits': 'Routine, warmth, and relaxation are key',
+      'Body': 'Lean and agile',
+      'Mind': 'Creative and energetic',
+      'Balance with': 'Warm food, routine, relaxation',
     },
   },
   {
     name: 'Pitta',
     imageUrl: 'https://exlaucgslmfiakllbtnq.supabase.co/storage/v1/object/public/AyurvedaIsBack/Pitta%20(1).png',
-    description: 'The energy of digestion and metabolism. Governs body temperature and hormones.',
+    description: 'Energy of digestion and metabolism',
     details: {
-      'Body Type': 'Medium build, muscular, sharp features',
-      'Emotional Tendencies': 'Intelligent, focused, but can be irritable',
-      'Diet Suggestions': 'Cooling, sweet, and non-spicy foods',
-      'Lifestyle Habits': 'Moderation, coolness, and work-life balance',
+      'Body': 'Medium, strong build',
+      'Mind': 'Focused and ambitious',
+      'Balance with': 'Cooling foods and moderation',
     },
   },
   {
     name: 'Kapha',
     imageUrl: 'https://exlaucgslmfiakllbtnq.supabase.co/storage/v1/object/public/AyurvedaIsBack/Kapha.png',
-    description: 'The energy of lubrication and structure. Governs growth, immunity, and moisture.',
+    description: 'Energy of structure and stability',
     details: {
-      'Body Type': 'Solid build, strong, with soft features',
-      'Emotional Tendencies': 'Calm, loving, but can tend towards lethargy',
-      'Diet Suggestions': 'Light, dry, and warm foods with pungent spices',
-      'Lifestyle Habits': 'Regular exercise, stimulation, and variety',
+      'Body': 'Solid and strong',
+      'Mind': 'Calm and compassionate',
+      'Balance with': 'Activity and light foods',
     },
   },
 ];
@@ -78,10 +75,10 @@ export default function DoshaInfo() {
         <div className="mt-12 text-center">
           <Button
             asChild
-            className="h-auto max-w-md whitespace-normal rounded-[10px] bg-accent px-7 py-3.5 text-center text-base font-semibold text-accent-foreground transition-transform duration-200 ease-in-out hover:scale-105 hover:bg-accent/90"
+            className="h-auto rounded-[10px] bg-accent px-7 py-3.5 text-center text-base font-semibold text-accent-foreground transition-transform duration-200 ease-in-out hover:scale-105 hover:bg-accent/90"
           >
             <Link href="/quiz">
-              Take the free test now and get flat 20% off on subscription
+              Take the free dosha test now
             </Link>
           </Button>
         </div>
