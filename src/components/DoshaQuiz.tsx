@@ -3,16 +3,12 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useAuth } from '@/hooks/useAuth';
-import { doc, setDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { Loader } from '@/components/ui/loader';
-import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 
 const questions = [
@@ -84,8 +80,6 @@ export default function DoshaQuiz() {
   const [loading, setLoading] = useState(false);
   const [quizComplete, setQuizComplete] = useState(false);
   const [dominantDosha, setDominantDosha] = useState<Dosha | null>(null);
-  const { user } = useAuth();
-  const { toast } = useToast();
 
   const handleAnswerChange = (value: Dosha) => {
     const newAnswers = [...answers];
@@ -109,30 +103,12 @@ export default function DoshaQuiz() {
     return sortedDoshas[0] as Dosha;
   };
 
-  const handleSubmit = async (finalAnswers: (Dosha|null)[]) => {
-    if (!user) {
-      toast({ title: 'You must be logged in to save your result.', variant: 'destructive' });
-      return;
-    }
+  const handleSubmit = (finalAnswers: (Dosha|null)[]) => {
     setLoading(true);
     const calculatedDosha = calculateDosha(finalAnswers);
-    try {
-      const userRef = doc(db, 'users', user.uid);
-      await setDoc(userRef, { dosha: calculatedDosha }, { merge: true });
-      
-      setDominantDosha(calculatedDosha);
-      setQuizComplete(true);
-
-      toast({
-        title: "Prakriti Test Complete!",
-        description: `Your dominant dosha is ${calculatedDosha}.`,
-      });
-    } catch (error) {
-      console.error("Error updating dosha: ", error);
-      toast({ title: 'An error occurred', description: 'Could not save your dosha profile.', variant: 'destructive' });
-    } finally {
-        setLoading(false);
-    }
+    setDominantDosha(calculatedDosha);
+    setQuizComplete(true);
+    setLoading(false);
   };
 
   const progress = ((answers.filter(a => a !== null).length) / questions.length) * 100;
@@ -161,12 +137,21 @@ export default function DoshaQuiz() {
                 </Card>
                 ))}
             </div>
-            <div className="mt-12">
-                <Button asChild size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90 h-auto px-8 py-4 text-base transition-transform hover:scale-105">
-                    <Link href="/#sampoorna-plan">Unlock Your Personalized Wellness Plan</Link>
-                </Button>
+            <div className="mt-12 w-full max-w-lg mx-auto">
+                <h3 className="font-headline text-2xl font-bold">Save Your Results</h3>
+                <p className="mt-2 text-muted-foreground">
+                    Create an account or log in to save your dosha insights and unlock personalized wellness recommendations.
+                </p>
+                <div className="mt-6 flex flex-col sm:flex-row gap-4 justify-center">
+                    <Button asChild size="lg">
+                        <Link href={`/login?dosha=${dominantDosha}`}>Login</Link>
+                    </Button>
+                    <Button asChild size="lg" variant="outline">
+                        <Link href={`/login?mode=signup&dosha=${dominantDosha}`}>Create Account</Link>
+                    </Button>
+                </div>
                 <p className="mt-4 text-sm text-foreground font-medium">
-                    Get <span className="font-semibold text-primary">20% off</span> your subscription based on your dosha.
+                    Sign up now and get <span className="font-semibold text-primary">20% off</span> your Sampoorna Plan.
                 </p>
             </div>
         </div>

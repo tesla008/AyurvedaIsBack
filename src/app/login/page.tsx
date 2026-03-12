@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -28,19 +28,30 @@ import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Image from 'next/image';
 import { Logo } from '@/components/Logo';
 
-export default function LoginPage() {
-  const [isLogin, setIsLogin] = useState(true);
+// This is a wrapper component to ensure useSearchParams is used within Suspense context
+function LoginPageContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  const doshaFromQuiz = searchParams.get('dosha');
+  const mode = searchParams.get('mode');
+  
+  const [isLogin, setIsLogin] = useState(mode !== 'signup');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
   const { toast } = useToast();
   const loginBg = PlaceHolderImages.find(p => p.id === 'login-background');
 
+  useEffect(() => {
+    setIsLogin(mode !== 'signup');
+  }, [mode]);
+
   const checkAndRedirect = async (user) => {
-    const userDoc = await getDoc(doc(db, 'users', user.uid));
-    if (userDoc.exists() && userDoc.data().dosha) {
+    const userDocRef = doc(db, 'users', user.uid);
+    const userDoc = await getDoc(userDocRef);
+    if (doshaFromQuiz || (userDoc.exists() && userDoc.data().dosha)) {
       router.push('/dashboard');
     } else {
       router.push('/quiz');
@@ -54,6 +65,9 @@ export default function LoginPage() {
       let userCredential;
       if (isLogin) {
         userCredential = await signInWithEmailAndPassword(auth, email, password);
+        if (doshaFromQuiz) {
+            await setDoc(doc(db, 'users', userCredential.user.uid), { dosha: doshaFromQuiz }, { merge: true });
+        }
       } else {
         userCredential = await createUserWithEmailAndPassword(auth, email, password);
         await updateProfile(userCredential.user, { displayName: name });
@@ -61,7 +75,7 @@ export default function LoginPage() {
           uid: userCredential.user.uid,
           name: name,
           email: userCredential.user.email,
-          dosha: null,
+          dosha: doshaFromQuiz || null,
         });
       }
       toast({ title: isLogin ? 'Login successful!' : 'Account created!' });
@@ -85,8 +99,10 @@ export default function LoginPage() {
           uid: user.uid,
           name: user.displayName,
           email: user.email,
-          dosha: null,
+          dosha: doshaFromQuiz || null,
         });
+      } else if(doshaFromQuiz) {
+        await setDoc(userDocRef, { dosha: doshaFromQuiz }, { merge: true });
       }
       toast({ title: 'Google sign-in successful!' });
       await checkAndRedirect(user);
@@ -163,5 +179,11 @@ export default function LoginPage() {
         </form>
       </Card>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+      <LoginPageContent />
   );
 }

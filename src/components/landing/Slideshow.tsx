@@ -87,7 +87,7 @@ export default function Slideshow() {
         </div>
         <div className="mt-16 text-center">
             <Button asChild size="lg">
-                <Link href="/dosha-quiz">Take the Free Dosha Test</Link>
+                <Link href="/quiz">Take the Free Dosha Test</Link>
             </Button>
         </div>
       </div>
