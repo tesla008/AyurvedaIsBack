@@ -1,72 +1,95 @@
-import { Card, CardContent } from "@/components/ui/card"
 import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel"
-import { PlaceHolderImages } from "@/lib/placeholder-images"
-import Image from "next/image"
+  ShieldCheck,
+  Leaf,
+  Users,
+  Activity,
+  Video,
+  ShoppingBag,
+} from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
-const slides = [
-  { id: "dosha-detection", title: "Personalized Dosha Detection" },
-  { id: "daily-tips", title: "Daily Ayurvedic Tips" },
-  { id: "expert-consultations", title: "Expert Consultations with Ayurvedic Doctors" },
-  { id: "wellness-webinars", title: "Live Wellness Webinars" },
-  { id: "lifestyle-activities", title: "Ayurvedic Lifestyle Activities" },
-  { id: "product-marketplace", title: "Ayurvedic Product Marketplace (coming soon)" },
+const features = [
+  {
+    icon: ShieldCheck,
+    title: 'Personalized Dosha Detection',
+    description: 'Discover your Ayurvedic body constitution and unlock personalized wellness insights.',
+  },
+  {
+    icon: Leaf,
+    title: 'Daily Ayurvedic Tips',
+    description: 'Receive simple daily tips based on your dosha to support balance and wellbeing.',
+  },
+  {
+    icon: Users,
+    title: 'Expert Consultations',
+    description: 'Connect with experienced Ayurvedic doctors for personalized health guidance.',
+  },
+  {
+    icon: Activity,
+    title: 'Ayurveda Lifestyle Activities',
+    description: 'Practice daily rituals, yoga, breathing techniques, and mindful routines.',
+  },
+  {
+    icon: Video,
+    title: 'Live Wellness Webinars',
+    description: 'Join interactive sessions with Ayurvedic experts and wellness practitioners.',
+  },
+  {
+    icon: ShoppingBag,
+    title: 'Personalized Ayurvedic Products',
+    description: 'Dosha-based Ayurvedic products designed for your unique body constitution.',
+    badge: 'Coming Soon',
+  },
 ];
 
 export default function Slideshow() {
   return (
     <section id="features" className="w-full py-12 md:py-24 lg:py-32 bg-background">
       <div className="container mx-auto px-4 md:px-6">
-        <h2 className="text-center font-headline text-3xl font-bold tracking-tight sm:text-4xl">
-          A Personalized Wellness Ecosystem
-        </h2>
-        <p className="mx-auto mt-4 max-w-3xl text-center text-lg text-muted-foreground">
-          Discover how Ayurveda at Tips can transform your daily life with ancient wisdom and modern technology.
-        </p>
-        <Carousel
-          opts={{
-            align: "start",
-            loop: true,
-          }}
-          className="w-full max-w-5xl mx-auto mt-12"
-        >
-          <CarouselContent>
-            {slides.map((slide) => {
-              const image = PlaceHolderImages.find(p => p.id === slide.id);
-              return (
-                <CarouselItem key={slide.id} className="md:basis-1/2 lg:basis-1/3">
-                  <div className="p-1">
-                    <Card className="overflow-hidden shadow-lg transition-shadow hover:shadow-xl">
-                      <CardContent className="flex aspect-video items-center justify-center p-0 relative">
-                        {image && (
-                          <Image
-                            src={image.imageUrl}
-                            alt={image.description}
-                            width={600}
-                            height={400}
-                            className="object-cover w-full h-full"
-                            data-ai-hint={image.imageHint}
-                          />
-                        )}
-                        <div className="absolute inset-0 bg-black/40" />
-                         <h3 className="relative z-10 text-center font-headline text-2xl font-semibold text-white p-4">
-                          {slide.title}
-                        </h3>
-                      </CardContent>
-                    </Card>
-                  </div>
-                </CarouselItem>
-              );
-            })}
-          </CarouselContent>
-          <CarouselPrevious className="hidden sm:flex" />
-          <CarouselNext className="hidden sm:flex" />
-        </Carousel>
+        <div className="mx-auto max-w-3xl text-center">
+            <h2 className="text-center font-headline text-3xl font-bold tracking-tight sm:text-4xl">
+              A Personalized Wellness Ecosystem
+            </h2>
+            <p className="mx-auto mt-4 max-w-[650px] text-center text-lg text-muted-foreground">
+              Ancient Ayurvedic wisdom meets modern technology to guide your daily wellness journey.
+            </p>
+        </div>
+        <div className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+          {features.map((feature) => (
+            <Card
+              key={feature.title}
+              className="flex flex-col items-center rounded-xl bg-card p-7 text-center shadow-lg transition-transform duration-200 ease-in-out hover:-translate-y-1.5"
+            >
+              <CardHeader className="p-0">
+                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary">
+                  <feature.icon className="h-8 w-8" />
+                </div>
+              </CardHeader>
+              <CardContent className="flex flex-grow flex-col p-0">
+                <CardTitle className="text-xl font-semibold">{feature.title}</CardTitle>
+                {feature.badge && (
+                  <Badge
+                    variant="secondary"
+                    className="mx-auto mt-2 px-2 py-1 text-xs font-semibold"
+                  >
+                    {feature.badge}
+                  </Badge>
+                )}
+                <CardDescription className="mt-2 text-base text-muted-foreground">
+                  {feature.description}
+                </CardDescription>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+        <div className="mt-16 text-center">
+            <Button asChild size="lg">
+                <Link href="/dosha-quiz">Take the Free Dosha Test</Link>
+            </Button>
+        </div>
       </div>
     </section>
   );
