@@ -2,6 +2,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Button } from "@/components/ui/button";
 import { Check, X } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 const freeFeatures = [
   "Daily Ayurvedic Tips",
@@ -29,9 +30,16 @@ export default function Pricing() {
             Start for free and upgrade when you're ready to unlock your full potential.
           </p>
         </div>
-        <div className="mt-12 grid max-w-5xl mx-auto gap-8 lg:grid-cols-2">
+        <div className="mt-12 grid max-w-5xl mx-auto gap-8 md:grid-cols-2">
           <Card className="shadow-lg flex flex-col">
             <CardHeader className="text-center">
+              <Image
+                src="https://exlaucgslmfiakllbtnq.supabase.co/storage/v1/object/public/AyurvedaIsBack/Freeplan.png"
+                alt="Free Plan Icon"
+                width={90}
+                height={90}
+                className="mx-auto mb-3 h-auto w-[90px] object-contain"
+              />
               <CardTitle className="font-headline text-4xl font-bold">FREE</CardTitle>
               <CardDescription className="font-semibold text-primary">Limited Features</CardDescription>
             </CardHeader>
@@ -63,6 +71,13 @@ export default function Pricing() {
           <Card className="shadow-xl border-2 border-primary relative overflow-hidden flex flex-col">
             <div className="bg-primary text-primary-foreground text-center py-2 font-semibold absolute top-0 w-full">Most Popular</div>
             <CardHeader className="text-center pt-12">
+               <Image
+                src="https://exlaucgslmfiakllbtnq.supabase.co/storage/v1/object/public/AyurvedaIsBack/Sampoornaplan.png"
+                alt="Sampoorna Plan Icon"
+                width={90}
+                height={90}
+                className="mx-auto mb-3 h-auto w-[90px] object-contain"
+              />
               <CardTitle className="font-headline text-2xl">Sampoorna Plan</CardTitle>
               <CardDescription>Your complete guide to holistic wellness.</CardDescription>
             </CardHeader>
