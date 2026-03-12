@@ -1,3 +1,4 @@
+
 import { Logo } from './Logo';
 import { Separator } from './ui/separator';
 import Link from 'next/link';
@@ -23,9 +24,9 @@ export default function Footer() {
           <div className="grid gap-8 sm:grid-cols-2 md:grid-cols-4 lg:col-span-8">
             <div className="grid gap-2">
               <h3 className="font-headline text-lg font-semibold">About</h3>
-              <Link href="#" className="hover:text-primary">Mission</Link>
-              <Link href="#" className="hover:text-primary">About Us</Link>
-              <Link href="#" className="hover:text-primary">Careers</Link>
+              <Link href="/mission" className="hover:text-primary">Mission</Link>
+              <Link href="/about" className="hover:text-primary">About Us</Link>
+              <Link href="/careers" className="hover:text-primary">Careers</Link>
             </div>
             <div className="grid gap-2">
               <h3 className="font-headline text-lg font-semibold">Community</h3>
