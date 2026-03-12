@@ -1,10 +1,11 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
 import { doc, setDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -12,6 +13,7 @@ import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { Loader } from '@/components/ui/loader';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 const questions = [
   {
@@ -56,32 +58,50 @@ const questions = [
   },
 ];
 
+const resultDoshas = [
+  {
+    name: 'Vata',
+    imageUrl: 'https://exlaucgslmfiakllbtnq.supabase.co/storage/v1/object/public/AyurvedaIsBack/Vata.png',
+    description: 'Energy of movement and creativity.',
+  },
+  {
+    name: 'Pitta',
+    imageUrl: 'https://exlaucgslmfiakllbtnq.supabase.co/storage/v1/object/public/AyurvedaIsBack/Pitta%20(1).png',
+    description: 'Energy of digestion, focus, and transformation.',
+  },
+  {
+    name: 'Kapha',
+    imageUrl: 'https://exlaucgslmfiakllbtnq.supabase.co/storage/v1/object/public/AyurvedaIsBack/Kapha.png',
+    description: 'Energy of stability, structure, and calm.',
+  },
+];
+
 type Dosha = 'Vata' | 'Pitta' | 'Kapha';
 
 export default function DoshaQuiz() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<(Dosha | null)[]>(Array(questions.length).fill(null));
   const [loading, setLoading] = useState(false);
-  const { user, userProfile } = useAuth();
-  const router = useRouter();
+  const [quizComplete, setQuizComplete] = useState(false);
+  const [dominantDosha, setDominantDosha] = useState<Dosha | null>(null);
+  const { user } = useAuth();
   const { toast } = useToast();
-
-  const handleNext = () => {
-    if (currentQuestionIndex < questions.length - 1) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
-    }
-  };
 
   const handleAnswerChange = (value: Dosha) => {
     const newAnswers = [...answers];
     newAnswers[currentQuestionIndex] = value;
     setAnswers(newAnswers);
-    setTimeout(handleNext, 300);
+    
+    if (currentQuestionIndex === questions.length - 1) {
+        setTimeout(() => handleSubmit(newAnswers), 300);
+    } else {
+        setTimeout(() => setCurrentQuestionIndex(currentQuestionIndex + 1), 300);
+    }
   };
 
-  const calculateDosha = (): Dosha => {
+  const calculateDosha = (finalAnswers: (Dosha|null)[]): Dosha => {
     const counts = { Vata: 0, Pitta: 0, Kapha: 0 };
-    answers.forEach(answer => {
+    finalAnswers.forEach(answer => {
       if (answer) counts[answer]++;
     });
     
@@ -89,37 +109,74 @@ export default function DoshaQuiz() {
     return sortedDoshas[0] as Dosha;
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (finalAnswers: (Dosha|null)[]) => {
     if (!user) {
       toast({ title: 'You must be logged in to save your result.', variant: 'destructive' });
       return;
     }
     setLoading(true);
-    const dominantDosha = calculateDosha();
+    const calculatedDosha = calculateDosha(finalAnswers);
     try {
       const userRef = doc(db, 'users', user.uid);
-      await setDoc(userRef, { dosha: dominantDosha }, { merge: true });
+      await setDoc(userRef, { dosha: calculatedDosha }, { merge: true });
+      
+      setDominantDosha(calculatedDosha);
+      setQuizComplete(true);
+
       toast({
         title: "Prakriti Test Complete!",
-        description: `Your dominant dosha is ${dominantDosha}. Redirecting to your dashboard...`,
+        description: `Your dominant dosha is ${calculatedDosha}.`,
       });
-      router.push('/dashboard');
     } catch (error) {
       console.error("Error updating dosha: ", error);
       toast({ title: 'An error occurred', description: 'Could not save your dosha profile.', variant: 'destructive' });
-      setLoading(false);
+    } finally {
+        setLoading(false);
     }
   };
 
-  const isComplete = answers.every(answer => answer !== null);
   const progress = ((answers.filter(a => a !== null).length) / questions.length) * 100;
+
+  if (loading) {
+      return (
+          <Card className="w-full max-w-2xl mx-auto shadow-2xl flex items-center justify-center min-h-[480px]">
+              <Loader className="h-12 w-12 text-primary" />
+          </Card>
+      )
+  }
+
+  if (quizComplete && dominantDosha) {
+    return (
+        <div className="text-center w-full max-w-5xl">
+            <h2 className="font-headline text-3xl font-bold">Your Ayurvedic Dosha is {dominantDosha}</h2>
+            <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-8">
+                {resultDoshas.map(dosha => (
+                <Card key={dosha.name} className={cn(
+                    "p-6 text-center shadow-lg transition-all duration-300 bg-card",
+                    dominantDosha === dosha.name && "border-2 border-primary scale-105"
+                )}>
+                    <Image src={dosha.imageUrl} alt={dosha.name} width={150} height={150} className="mx-auto mb-4 rounded-lg object-contain aspect-square"/>
+                    <h3 className="font-headline text-2xl font-bold">{dosha.name}</h3>
+                    <p className="text-muted-foreground mt-2">{dosha.description}</p>
+                </Card>
+                ))}
+            </div>
+            <div className="mt-12">
+                <Button asChild size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90 h-auto px-8 py-4 text-base transition-transform hover:scale-105">
+                    <Link href="/#sampoorna-plan">Unlock Your Personalized Wellness Plan</Link>
+                </Button>
+                <p className="mt-4 text-sm text-foreground font-medium">
+                    Get <span className="font-semibold text-primary">20% off</span> your subscription based on your dosha.
+                </p>
+            </div>
+        </div>
+    );
+  }
 
   return (
     <Card className="w-full max-w-2xl mx-auto shadow-2xl">
       <CardHeader>
-        <CardTitle className="font-headline text-3xl text-center">Discover Your Prakriti</CardTitle>
-        <CardDescription className="text-center">Answer these 5 questions to find your unique mind-body constitution.</CardDescription>
-        <Progress value={progress} className="mt-4" />
+        <Progress value={progress} />
       </CardHeader>
       <CardContent>
         <div className="min-h-[250px]">
@@ -146,13 +203,8 @@ export default function DoshaQuiz() {
           </RadioGroup>
         </div>
       </CardContent>
-      <CardFooter className="flex justify-between items-center">
+      <CardFooter className="flex justify-center items-center">
         <p className="text-sm text-muted-foreground">Question {currentQuestionIndex + 1} of {questions.length}</p>
-        {isComplete && (
-          <Button onClick={handleSubmit} disabled={loading}>
-            {loading ? <Loader className="h-4 w-4" /> : 'See My Result'}
-          </Button>
-        )}
       </CardFooter>
     </Card>
   );
