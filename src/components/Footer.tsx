@@ -30,8 +30,8 @@ export default function Footer() {
             </div>
             <div className="grid gap-2">
               <h3 className="font-headline text-lg font-semibold">Community</h3>
-              <Link href="#" className="hover:text-primary">Doctor Onboarding</Link>
-              <Link href="#" className="hover:text-primary">Yoga Teacher Onboarding</Link>
+              <Link href="/doctor-onboarding" className="hover:text-primary">Doctor Onboarding</Link>
+              <Link href="/yoga-teacher-onboarding" className="hover:text-primary">Yoga Teacher Onboarding</Link>
               <Link href="#" className="hover:text-primary">Partners</Link>
             </div>
             <div className="grid gap-2">
