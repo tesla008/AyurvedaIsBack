@@ -1,24 +1,18 @@
 import Image from 'next/image';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
 export default function Hero() {
-  const heroImage = PlaceHolderImages.find(p => p.id === 'hero-background');
-
   return (
     <section className="relative h-[80vh] min-h-[600px] w-full">
-      {heroImage && (
-        <Image
-          src={heroImage.imageUrl}
-          alt={heroImage.description}
-          fill
-          className="object-cover"
-          data-ai-hint={heroImage.imageHint}
-          priority
-        />
-      )}
-      <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/20 to-transparent" />
+      <Image
+        src="https://exlaucgslmfiakllbtnq.supabase.co/storage/v1/object/public/AyurvedaIsBack/HeroWebsite.png"
+        alt="Ayurvedic background with herbs and spices"
+        fill
+        className="object-cover blur-[3px]"
+        priority
+      />
+      <div className="absolute inset-0 bg-[rgba(232,213,175,0.45)]" />
       <div className="relative z-10 flex h-full flex-col items-center justify-center text-center text-foreground">
         <div className="container px-4 md:px-6">
           <div className="max-w-3xl mx-auto">

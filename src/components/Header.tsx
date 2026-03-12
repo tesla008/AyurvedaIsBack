@@ -8,11 +8,22 @@ import { auth } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from './ui/dropdown-menu';
-import { LayoutDashboard, LogOut, User as UserIcon, HelpCircle, HeartHandshake } from 'lucide-react';
+import { LayoutDashboard, LogOut, User as UserIcon, HelpCircle } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { cn } from '@/lib/utils';
 
 export default function Header() {
   const { user, userProfile, loading } = useAuth();
   const router = useRouter();
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleLogout = async () => {
     await auth.signOut();
@@ -25,7 +36,12 @@ export default function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-sm">
+    <header className={cn(
+      "sticky top-0 z-50 w-full transition-all duration-300",
+      isScrolled
+        ? "border-b bg-[#E8D5AF] shadow-[0_4px_12px_rgba(0,0,0,0.08)]"
+        : "bg-transparent"
+    )}>
       <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
         <Logo />
         <nav className="hidden items-center gap-6 text-sm font-medium md:flex">
