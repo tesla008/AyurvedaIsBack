@@ -2,6 +2,7 @@
 
 import { useRef } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import Autoplay from 'embla-carousel-autoplay';
 import { Card, CardContent, CardTitle, CardDescription } from "@/components/ui/card";
 import {
@@ -11,6 +12,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import { Button } from '@/components/ui/button';
 
 const allActivities = [
   {
@@ -106,6 +108,20 @@ export default function ActivitiesPage() {
           <CarouselNext className="hidden sm:flex" />
         </Carousel>
       </div>
+      <section className="w-full py-12 md:py-24 bg-secondary">
+        <div className="container mx-auto px-4 md:px-6 text-center">
+          <h2 className="font-headline text-2xl md:text-3xl font-bold tracking-tight">
+            Unlock the full Ayurvedic lifestyle experience.
+          </h2>
+          <Button 
+            asChild 
+            size="lg" 
+            className="mt-8 font-semibold bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-105 transition-transform duration-200 ease-in-out"
+          >
+            <Link href="/#sampoorna-plan">Buy the Sampoorna Plan</Link>
+          </Button>
+        </div>
+      </section>
     </div>
   );
 }

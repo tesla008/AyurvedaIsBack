@@ -46,7 +46,7 @@ export default function Header() {
         <Logo />
         <nav className="hidden items-center gap-6 text-sm font-medium md:flex">
           <Link href="/#features" className="transition-colors hover:text-primary">Features</Link>
-          <Link href="/#pricing" className="transition-colors hover:text-primary">Pricing</Link>
+          <Link href="/#sampoorna-plan" className="transition-colors hover:text-primary">Sampoorna Plan</Link>
           <Link href="/activities" className="transition-colors hover:text-primary">Activities</Link>
           <Link href="/shop" className="transition-colors hover:text-primary">Shop</Link>
         </nav>
