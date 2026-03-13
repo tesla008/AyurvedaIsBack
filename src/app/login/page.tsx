@@ -33,7 +33,6 @@ function LoginPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const doshaFromQuiz = searchParams.get('dosha');
   const mode = searchParams.get('mode');
   
   const [isLogin, setIsLogin] = useState(mode !== 'signup');
@@ -51,7 +50,7 @@ function LoginPageContent() {
   const checkAndRedirect = async (user: User) => {
     const userDocRef = doc(db, 'users', user.uid);
     const userDoc = await getDoc(userDocRef);
-    if (doshaFromQuiz || (userDoc.exists() && userDoc.data().dosha)) {
+    if (userDoc.exists() && userDoc.data().dosha) {
       router.push('/dashboard');
     } else {
       router.push('/quiz');
@@ -61,12 +60,14 @@ function LoginPageContent() {
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    const storedDosha = localStorage.getItem('doshaResult');
     try {
       let userCredential;
       if (isLogin) {
         userCredential = await signInWithEmailAndPassword(auth, email, password);
-        if (doshaFromQuiz) {
-            await setDoc(doc(db, 'users', userCredential.user.uid), { dosha: doshaFromQuiz }, { merge: true });
+        if (storedDosha) {
+            await setDoc(doc(db, 'users', userCredential.user.uid), { dosha: storedDosha }, { merge: true });
+            localStorage.removeItem('doshaResult');
         }
       } else {
         if (!name) {
@@ -80,9 +81,12 @@ function LoginPageContent() {
           uid: userCredential.user.uid,
           name: name,
           email: userCredential.user.email,
-          dosha: doshaFromQuiz || null,
+          dosha: storedDosha || null,
           createdAt: new Date(),
         });
+        if (storedDosha) {
+          localStorage.removeItem('doshaResult');
+        }
       }
       toast({ title: isLogin ? 'Login successful!' : 'Account created!' });
       await checkAndRedirect(userCredential.user);
@@ -95,6 +99,7 @@ function LoginPageContent() {
   const handleGoogleSignIn = async () => {
     setLoading(true);
     const provider = new GoogleAuthProvider();
+    const storedDosha = localStorage.getItem('doshaResult');
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
@@ -105,15 +110,20 @@ function LoginPageContent() {
           uid: user.uid,
           name: user.displayName,
           email: user.email,
-          dosha: doshaFromQuiz || null,
+          dosha: storedDosha || null,
           createdAt: new Date(),
         });
-      } else if (doshaFromQuiz) {
-        await setDoc(userDocRef, { dosha: doshaFromQuiz }, { merge: true });
+      } else if (storedDosha) {
+        await setDoc(userDocRef, { dosha: storedDosha }, { merge: true });
       }
+      
+      if (storedDosha) {
+        localStorage.removeItem('doshaResult');
+      }
+
       toast({ title: 'Google sign-in successful!' });
       await checkAndRedirect(user);
-    } catch (error: any) {
+    } catch (error: any)      {
       toast({ title: 'Google Sign-In Error', description: error.message, variant: 'destructive' });
       setLoading(false);
     }

@@ -106,6 +106,7 @@ export default function DoshaQuiz() {
   const handleSubmit = (finalAnswers: (Dosha|null)[]) => {
     setLoading(true);
     const calculatedDosha = calculateDosha(finalAnswers);
+    localStorage.setItem('doshaResult', calculatedDosha);
     setDominantDosha(calculatedDosha);
     setQuizComplete(true);
     setLoading(false);
@@ -144,10 +145,10 @@ export default function DoshaQuiz() {
                 </p>
                 <div className="mt-6 flex flex-col sm:flex-row gap-4 justify-center">
                     <Button asChild size="lg">
-                        <Link href={`/login?dosha=${dominantDosha}`}>Login</Link>
+                        <Link href="/login">Login</Link>
                     </Button>
                     <Button asChild size="lg" variant="outline">
-                        <Link href={`/login?mode=signup&dosha=${dominantDosha}`}>Create Account</Link>
+                        <Link href="/login?mode=signup">Create Account</Link>
                     </Button>
                 </div>
                 <p className="mt-4 text-sm text-foreground font-medium">
