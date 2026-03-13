@@ -4,6 +4,15 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Contact Ayurveda at Tips',
+  description: 'Get in touch with Ayurveda at Tips for general inquiries, doctor partnerships, or yoga teacher collaborations. We would love to hear from you.',
+  alternates: {
+    canonical: '/contact',
+  },
+};
 
 export default function ContactPage() {
   return (

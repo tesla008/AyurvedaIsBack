@@ -2,6 +2,15 @@
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Doctor Onboarding',
+  description: 'Learn how to partner with Ayurveda at Tips as an expert Ayurvedic doctor. View our onboarding presentation and join our network.',
+  alternates: {
+    canonical: '/doctor-onboarding',
+  },
+};
 
 export default function DoctorOnboardingPage() {
   const pdfUrl = "https://exlaucgslmfiakllbtnq.supabase.co/storage/v1/object/public/AyurvedaIsBack/AyurvedaAtTipsDoctors.pdf";

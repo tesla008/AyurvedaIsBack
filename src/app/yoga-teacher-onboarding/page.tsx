@@ -2,6 +2,15 @@
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Yoga Teacher Onboarding',
+  description: 'Learn how to collaborate with Ayurveda at Tips as a yoga teacher. View our onboarding presentation and share the wisdom of yoga with our community.',
+  alternates: {
+    canonical: '/yoga-teacher-onboarding',
+  },
+};
 
 export default function YogaTeacherOnboardingPage() {
   const pdfUrl = "https://exlaucgslmfiakllbtnq.supabase.co/storage/v1/object/public/AyurvedaIsBack/Ayurveda-At-TipsTutors.pdf";

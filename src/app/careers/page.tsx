@@ -1,5 +1,14 @@
 
 import Image from 'next/image';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Careers',
+  description: 'Join Ayurveda at Tips and help us build a platform that brings the ancient wisdom of Ayurveda into the future. We are looking for passionate individuals who believe in holistic wellness.',
+  alternates: {
+    canonical: '/careers',
+  },
+};
 
 export default function CareersPage() {
   return (

@@ -1,5 +1,14 @@
 
 import Image from 'next/image';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Our Mission',
+  description: 'Learn about the mission of Ayurveda at Tips to make holistic wellness simple, accessible, and personalized by combining ancient Ayurvedic principles with modern technology.',
+  alternates: {
+    canonical: '/mission',
+  },
+};
 
 export default function MissionPage() {
   return (

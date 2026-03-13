@@ -1,5 +1,14 @@
 
 import Image from 'next/image';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'About Us',
+  description: 'Learn about Ayurveda at Tips, a digital wellness platform designed to make Ayurveda practical for modern living by helping users discover their dosha and receive personalized lifestyle guidance.',
+  alternates: {
+    canonical: '/about',
+  },
+};
 
 export default function AboutUsPage() {
   return (

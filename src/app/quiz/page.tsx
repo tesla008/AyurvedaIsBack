@@ -1,5 +1,14 @@
 import DoshaQuiz from "@/components/DoshaQuiz";
 import Image from "next/image";
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+    title: 'Free Ayurvedic Dosha Test | Discover Your Body Type',
+    description: 'Take our free, quick, and easy Ayurvedic dosha test to discover your unique mind-body constitution (Vata, Pitta, or Kapha) and get personalized wellness tips.',
+    alternates: {
+        canonical: '/quiz',
+    },
+};
 
 export default function QuizPage() {
     return (

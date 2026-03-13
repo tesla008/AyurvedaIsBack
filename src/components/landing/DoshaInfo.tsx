@@ -52,7 +52,7 @@ export default function DoshaInfo() {
               <CardHeader className="text-center">
                 <Image
                   src={dosha.imageUrl}
-                  alt={`${dosha.name} dosha illustration`}
+                  alt={`${dosha.name} Dosha Illustration`}
                   width={250}
                   height={250}
                   className="w-[70%] h-auto mx-auto mb-4 object-contain rounded-lg aspect-square"

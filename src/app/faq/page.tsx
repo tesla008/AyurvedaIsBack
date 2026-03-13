@@ -5,7 +5,17 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion"
+} from "@/components/ui/accordion";
+import type { Metadata } from 'next';
+import Link from 'next/link';
+
+export const metadata: Metadata = {
+  title: 'Ayurveda Questions & Answers',
+  description: 'Find answers to frequently asked questions about Ayurveda, Doshas (Vata, Pitta, Kapha), our free dosha test, and the Sampoorna Plan.',
+  alternates: {
+    canonical: '/faq',
+  },
+};
 
 const faqs = [
     {
@@ -56,7 +66,13 @@ export default function FaqPage() {
                 <AccordionItem value={`item-${index}`} key={index}>
                     <AccordionTrigger className="text-lg text-left">{faq.question}</AccordionTrigger>
                     <AccordionContent className="text-base text-foreground/80">
-                    {faq.answer}
+                      {faq.question === "How does the Dosha Test work?" ? (
+                        <>
+                          {faq.answer} <Link href="/quiz" className="text-primary hover:underline">Take the free test now to discover your dosha.</Link>
+                        </>
+                      ) : (
+                        faq.answer
+                      )}
                     </AccordionContent>
                 </AccordionItem>
             ))}
