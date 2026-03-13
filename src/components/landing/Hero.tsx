@@ -1,8 +1,14 @@
+'use client';
+
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function Hero() {
+  const { user } = useAuth();
+  const journeyLink = user ? '/activities' : '/login';
+
   return (
     <section className="relative h-[80vh] min-h-[600px] w-full">
       <Image
@@ -24,7 +30,7 @@ export default function Hero() {
             </p>
             <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:justify-center">
               <Button asChild size="lg" className="text-base">
-                <Link href="/login">Start Your Wellness Journey</Link>
+                <Link href={journeyLink}>Start Your Wellness Journey</Link>
               </Button>
               <Button asChild size="lg" className="text-base font-bold bg-accent text-accent-foreground hover:bg-accent/90">
                 <Link href="/quiz">Take the free test now</Link>

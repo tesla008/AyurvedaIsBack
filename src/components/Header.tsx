@@ -49,6 +49,7 @@ export default function Header() {
           <Link href="/#sampoorna-plan" className="transition-colors hover:text-primary">Sampoorna Plan</Link>
           <Link href="/activities" className="transition-colors hover:text-primary">Activities</Link>
           <Link href="/shop" className="transition-colors hover:text-primary">Shop</Link>
+          <Link href="/profile" className="transition-colors hover:text-primary">Profile</Link>
         </nav>
         <div className="flex items-center gap-4">
           {loading ? (

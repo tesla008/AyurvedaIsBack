@@ -8,6 +8,10 @@ import { doc, getDoc, onSnapshot } from 'firebase/firestore';
 interface UserProfile {
   name: string;
   dosha: 'Vata' | 'Pitta' | 'Kapha' | null;
+  age?: string;
+  gender?: string;
+  healthGoals?: string;
+  diet?: string;
   [key: string]: any;
 }
 

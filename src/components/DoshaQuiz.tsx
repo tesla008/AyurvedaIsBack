@@ -1,15 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { Loader } from '@/components/ui/loader';
-import { cn } from '@/lib/utils';
 
 const questions = [
   {
@@ -54,32 +51,13 @@ const questions = [
   },
 ];
 
-const resultDoshas = [
-  {
-    name: 'Vata',
-    imageUrl: 'https://exlaucgslmfiakllbtnq.supabase.co/storage/v1/object/public/AyurvedaIsBack/Vata.png',
-    description: 'Energy of movement and creativity.',
-  },
-  {
-    name: 'Pitta',
-    imageUrl: 'https://exlaucgslmfiakllbtnq.supabase.co/storage/v1/object/public/AyurvedaIsBack/Pitta%20(1).png',
-    description: 'Energy of digestion, focus, and transformation.',
-  },
-  {
-    name: 'Kapha',
-    imageUrl: 'https://exlaucgslmfiakllbtnq.supabase.co/storage/v1/object/public/AyurvedaIsBack/Kapha.png',
-    description: 'Energy of stability, structure, and calm.',
-  },
-];
-
 type Dosha = 'Vata' | 'Pitta' | 'Kapha';
 
 export default function DoshaQuiz() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<(Dosha | null)[]>(Array(questions.length).fill(null));
   const [loading, setLoading] = useState(false);
-  const [quizComplete, setQuizComplete] = useState(false);
-  const [dominantDosha, setDominantDosha] = useState<Dosha | null>(null);
+  const router = useRouter();
 
   const handleAnswerChange = (value: Dosha) => {
     const newAnswers = [...answers];
@@ -107,9 +85,7 @@ export default function DoshaQuiz() {
     setLoading(true);
     const calculatedDosha = calculateDosha(finalAnswers);
     localStorage.setItem('doshaResult', calculatedDosha);
-    setDominantDosha(calculatedDosha);
-    setQuizComplete(true);
-    setLoading(false);
+    router.push('/login');
   };
 
   const progress = ((answers.filter(a => a !== null).length) / questions.length) * 100;
@@ -120,43 +96,6 @@ export default function DoshaQuiz() {
               <Loader className="h-12 w-12 text-primary" />
           </Card>
       )
-  }
-
-  if (quizComplete && dominantDosha) {
-    return (
-        <div className="text-center w-full max-w-5xl">
-            <h2 className="font-headline text-3xl font-bold">Your Ayurvedic Dosha is {dominantDosha}</h2>
-            <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-8">
-                {resultDoshas.map(dosha => (
-                <Card key={dosha.name} className={cn(
-                    "p-6 text-center shadow-lg transition-all duration-300 bg-card",
-                    dominantDosha === dosha.name && "border-2 border-primary scale-105"
-                )}>
-                    <Image src={dosha.imageUrl} alt={dosha.name} width={150} height={150} className="mx-auto mb-4 rounded-lg object-contain aspect-square"/>
-                    <h3 className="font-headline text-2xl font-bold">{dosha.name}</h3>
-                    <p className="text-muted-foreground mt-2">{dosha.description}</p>
-                </Card>
-                ))}
-            </div>
-            <div className="mt-12 w-full max-w-lg mx-auto">
-                <h3 className="font-headline text-2xl font-bold">Save Your Results</h3>
-                <p className="mt-2 text-muted-foreground">
-                    Create an account or log in to save your dosha insights and unlock personalized wellness recommendations.
-                </p>
-                <div className="mt-6 flex flex-col sm:flex-row gap-4 justify-center">
-                    <Button asChild size="lg">
-                        <Link href="/login">Login</Link>
-                    </Button>
-                    <Button asChild size="lg" variant="outline">
-                        <Link href="/login?mode=signup">Create Account</Link>
-                    </Button>
-                </div>
-                <p className="mt-4 text-sm text-foreground font-medium">
-                    Sign up now and get <span className="font-semibold text-primary">20% off</span> your Sampoorna Plan.
-                </p>
-            </div>
-        </div>
-    );
   }
 
   return (

@@ -9,10 +9,53 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Loader } from '@/components/ui/loader';
+import { useEffect, useState, useCallback, useRef } from 'react';
+import { doc, updateDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import { debounce } from '@/lib/utils';
 
 export default function ProfilePage() {
   const { user, userProfile, loading } = useAuth();
   const router = useRouter();
+
+  const [name, setName] = useState('');
+  const [age, setAge] = useState('');
+  const [gender, setGender] = useState('');
+  const [healthGoals, setHealthGoals] = useState('');
+  const [diet, setDiet] = useState('');
+  const isInitialMount = useRef(true);
+
+  useEffect(() => {
+    if (userProfile) {
+      setName(userProfile.name || user?.displayName || '');
+      setAge(userProfile.age || '');
+      setGender(userProfile.gender || '');
+      setHealthGoals(userProfile.healthGoals || '');
+      setDiet(userProfile.diet || '');
+    }
+  }, [userProfile, user]);
+
+  const debouncedUpdate = useCallback(
+    debounce(async (dataToUpdate: any) => {
+      if (user) {
+        const userDocRef = doc(db, 'users', user.uid);
+        await updateDoc(userDocRef, dataToUpdate);
+      }
+    }, 1000),
+    [user]
+  );
+
+  useEffect(() => {
+    if (isInitialMount.current) {
+        isInitialMount.current = false;
+        return;
+    }
+
+    if (user) {
+        debouncedUpdate({ name, age, gender, healthGoals, diet });
+    }
+  }, [name, age, gender, healthGoals, diet, user, debouncedUpdate]);
+
 
   if (loading) {
     return (
@@ -30,7 +73,7 @@ export default function ProfilePage() {
           Login to view your personalized dosha insights and manage your profile.
         </p>
         <Button onClick={() => router.push('/login')} size="lg" className="mt-8">
-          Login to Continue
+          Login for free
         </Button>
       </div>
     );
@@ -47,7 +90,7 @@ export default function ProfilePage() {
           <CardContent className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="name">Name</Label>
-              <Input id="name" defaultValue={userProfile?.name || user.displayName || ''} disabled />
+              <Input id="name" value={name} onChange={(e) => setName(e.target.value)} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
@@ -68,16 +111,19 @@ export default function ProfilePage() {
             </div>
              <div className="space-y-2">
               <Label htmlFor="age">Age</Label>
-              <Input id="age" placeholder="e.g., 30" disabled />
-              <p className="text-xs text-muted-foreground">Profile editing coming soon.</p>
+              <Input id="age" placeholder="e.g., 30" value={age} onChange={(e) => setAge(e.target.value)} />
+            </div>
+             <div className="space-y-2">
+              <Label htmlFor="gender">Gender</Label>
+              <Input id="gender" placeholder="e.g., Female" value={gender} onChange={(e) => setGender(e.target.value)} />
             </div>
              <div className="space-y-2">
               <Label htmlFor="goals">Health Goals</Label>
-              <Input id="goals" placeholder="e.g., Improve digestion, reduce stress" disabled />
+              <Input id="goals" placeholder="e.g., Improve digestion, reduce stress" value={healthGoals} onChange={(e) => setHealthGoals(e.target.value)} />
             </div>
              <div className="space-y-2">
               <Label htmlFor="diet">Diet Preference</Label>
-              <Input id="diet" placeholder="e.g., Vegetarian" disabled />
+              <Input id="diet" placeholder="e.g., Vegetarian" value={diet} onChange={(e) => setDiet(e.target.value)} />
             </div>
           </CardContent>
         </Card>
