@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import {
   createUserWithEmailAndPassword,
@@ -8,6 +8,7 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
   updateProfile,
+  User,
 } from 'firebase/auth';
 import { auth, db } from '@/lib/firebase';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
@@ -28,7 +29,6 @@ import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Image from 'next/image';
 import { Logo } from '@/components/Logo';
 
-// This is a wrapper component to ensure useSearchParams is used within Suspense context
 function LoginPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -48,7 +48,7 @@ function LoginPageContent() {
     setIsLogin(mode !== 'signup');
   }, [mode]);
 
-  const checkAndRedirect = async (user) => {
+  const checkAndRedirect = async (user: User) => {
     const userDocRef = doc(db, 'users', user.uid);
     const userDoc = await getDoc(userDocRef);
     if (doshaFromQuiz || (userDoc.exists() && userDoc.data().dosha)) {
@@ -69,6 +69,11 @@ function LoginPageContent() {
             await setDoc(doc(db, 'users', userCredential.user.uid), { dosha: doshaFromQuiz }, { merge: true });
         }
       } else {
+        if (!name) {
+            toast({ title: 'Authentication Error', description: 'Please enter your name.', variant: 'destructive' });
+            setLoading(false);
+            return;
+        }
         userCredential = await createUserWithEmailAndPassword(auth, email, password);
         await updateProfile(userCredential.user, { displayName: name });
         await setDoc(doc(db, 'users', userCredential.user.uid), {
@@ -76,6 +81,7 @@ function LoginPageContent() {
           name: name,
           email: userCredential.user.email,
           dosha: doshaFromQuiz || null,
+          createdAt: new Date(),
         });
       }
       toast({ title: isLogin ? 'Login successful!' : 'Account created!' });
@@ -100,8 +106,9 @@ function LoginPageContent() {
           name: user.displayName,
           email: user.email,
           dosha: doshaFromQuiz || null,
+          createdAt: new Date(),
         });
-      } else if(doshaFromQuiz) {
+      } else if (doshaFromQuiz) {
         await setDoc(userDocRef, { dosha: doshaFromQuiz }, { merge: true });
       }
       toast({ title: 'Google sign-in successful!' });
@@ -167,7 +174,7 @@ function LoginPageContent() {
               {loading ? <Loader className="h-4 w-4 mr-2" /> : 
                 <svg className="mr-2 h-4 w-4" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="google" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512"><path fill="currentColor" d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 126 21.2 172.9 56.5l-63.6 62.1C333.3 102.4 293.4 88 248 88c-77.5 0-140.2 62.4-140.2 139.3s62.7 139.3 140.2 139.3c85.3 0 119.3-63.4 123.3-95.3H248v-73.3h236.2c2.5 13.9 3.8 28.5 3.8 43.8z"></path></svg>
               }
-              Google
+              Continue with Google
             </Button>
             <p className="text-center text-sm text-muted-foreground">
               {isLogin ? "Don't have an account?" : 'Already have an account?'}
@@ -184,6 +191,8 @@ function LoginPageContent() {
 
 export default function LoginPage() {
   return (
+    <Suspense fallback={<div className="flex h-screen items-center justify-center"><Loader /></div>}>
       <LoginPageContent />
+    </Suspense>
   );
 }

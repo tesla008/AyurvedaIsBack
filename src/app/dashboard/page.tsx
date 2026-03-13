@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Loader } from '@/components/ui/loader';
 import { getDailyTip } from './actions';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Lightbulb, Zap, Sun, Droplets } from 'lucide-radix';
+import { Lightbulb, Zap, Sun, Droplets } from 'lucide-react';
 import DoshaInfo from '@/components/landing/DoshaInfo';
 
 const doshaDetails = {
