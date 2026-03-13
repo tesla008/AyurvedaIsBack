@@ -11,7 +11,7 @@ import {
   User,
 } from 'firebase/auth';
 import { auth, db } from '@/lib/firebase';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -66,7 +66,7 @@ function LoginPageContent() {
       if (isLogin) {
         userCredential = await signInWithEmailAndPassword(auth, email, password);
         if (storedDosha) {
-            await setDoc(doc(db, 'users', userCredential.user.uid), { dosha: storedDosha }, { merge: true });
+            await setDoc(doc(db, 'users', userCredential.user.uid), { dosha: storedDosha, quizCompleted: true }, { merge: true });
             localStorage.removeItem('doshaResult');
         }
       } else {
@@ -82,7 +82,8 @@ function LoginPageContent() {
           name: name,
           email: userCredential.user.email,
           dosha: storedDosha || null,
-          createdAt: new Date(),
+          quizCompleted: !!storedDosha,
+          createdAt: serverTimestamp(),
         });
         if (storedDosha) {
           localStorage.removeItem('doshaResult');
@@ -111,10 +112,11 @@ function LoginPageContent() {
           name: user.displayName,
           email: user.email,
           dosha: storedDosha || null,
-          createdAt: new Date(),
+          quizCompleted: !!storedDosha,
+          createdAt: serverTimestamp(),
         });
       } else if (storedDosha) {
-        await setDoc(userDocRef, { dosha: storedDosha }, { merge: true });
+        await setDoc(userDocRef, { dosha: storedDosha, quizCompleted: true }, { merge: true });
       }
       
       if (storedDosha) {
