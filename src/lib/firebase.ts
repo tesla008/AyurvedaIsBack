@@ -3,12 +3,12 @@ import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || 'your-api-key',
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || 'your-auth-domain',
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'your-project-id',
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || 'your-storage-bucket',
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || 'your-messaging-sender-id',
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || 'your-app-id',
+  apiKey: "AIzaSyCAyp483e93LoX02mzmQ52VpGu616-GEjo",
+  authDomain: "studio-525996013-b737d.firebaseapp.com",
+  projectId: "studio-525996013-b737d",
+  storageBucket: "studio-525996013-b737d.appspot.com",
+  messagingSenderId: "795799824940",
+  appId: "1:795799824940:web:984177428094f9c756ff89"
 };
 
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
