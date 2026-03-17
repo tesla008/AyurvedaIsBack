@@ -2,14 +2,14 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { Loader } from '@/components/ui/loader';
-import { useAuth } from '@/hooks/useAuth';
-import { db } from '@/lib/firebase';
-import { doc, setDoc } from 'firebase/firestore';
+import Image from 'next/image';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 const questions = [
   {
@@ -54,14 +54,30 @@ const questions = [
   },
 ];
 
+const doshaResultsData = [
+  {
+    name: 'Vata',
+    imageUrl: 'https://exlaucgslmfiakllbtnq.supabase.co/storage/v1/object/public/AyurvedaIsBack/Vata.png',
+    description: 'Energy of movement and creativity.',
+  },
+  {
+    name: 'Pitta',
+    imageUrl: 'https://exlaucgslmfiakllbtnq.supabase.co/storage/v1/object/public/AyurvedaIsBack/Pitta%20(1).png',
+    description: 'Energy of digestion, focus, and transformation.',
+  },
+  {
+    name: 'Kapha',
+    imageUrl: 'https://exlaucgslmfiakllbtnq.supabase.co/storage/v1/object/public/AyurvedaIsBack/Kapha.png',
+    description: 'Energy of stability, structure, and calm.',
+  },
+];
+
+
 type Dosha = 'Vata' | 'Pitta' | 'Kapha';
 
-export default function DoshaQuiz() {
+function QuizView({ onQuizComplete }: { onQuizComplete: (dosha: Dosha) => void }) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<(Dosha | null)[]>(Array(questions.length).fill(null));
-  const [loading, setLoading] = useState(false);
-  const router = useRouter();
-  const { user, loading: authLoading } = useAuth();
 
   const handleAnswerChange = (value: Dosha) => {
     const newAnswers = [...answers];
@@ -69,55 +85,23 @@ export default function DoshaQuiz() {
     setAnswers(newAnswers);
     
     if (currentQuestionIndex === questions.length - 1) {
-        setTimeout(() => handleSubmit(newAnswers), 300);
+        setTimeout(() => {
+            const counts = { Vata: 0, Pitta: 0, Kapha: 0 };
+            newAnswers.forEach(answer => {
+              if (answer) counts[answer]++;
+            });
+            const sortedDoshas = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
+            onQuizComplete(sortedDoshas[0] as Dosha);
+        }, 300);
     } else {
         setTimeout(() => setCurrentQuestionIndex(currentQuestionIndex + 1), 300);
     }
   };
-
-  const calculateDosha = (finalAnswers: (Dosha|null)[]): Dosha => {
-    const counts = { Vata: 0, Pitta: 0, Kapha: 0 };
-    finalAnswers.forEach(answer => {
-      if (answer) counts[answer]++;
-    });
-    
-    const sortedDoshas = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
-    return sortedDoshas[0] as Dosha;
-  };
-
-  const handleSubmit = async (finalAnswers: (Dosha|null)[]) => {
-    setLoading(true);
-    const calculatedDosha = calculateDosha(finalAnswers);
-    
-    if (user) {
-        try {
-            await setDoc(doc(db, "users", user.uid), {
-                dosha: calculatedDosha,
-                quizCompleted: true
-            }, { merge: true });
-            router.push('/dashboard');
-        } catch (e) {
-            console.error("Error saving dosha result:", e);
-            setLoading(false);
-        }
-    } else {
-        localStorage.setItem('doshaResult', calculatedDosha);
-        router.push('/login');
-    }
-  };
-
+  
   const progress = ((answers.filter(a => a !== null).length) / questions.length) * 100;
 
-  if (loading || authLoading) {
-      return (
-          <Card className="w-full max-w-2xl mx-auto shadow-2xl flex items-center justify-center min-h-[480px]">
-              <Loader className="h-12 w-12 text-primary" />
-          </Card>
-      )
-  }
-
   return (
-    <Card className="w-full max-w-2xl mx-auto shadow-2xl">
+    <Card className="w-full max-w-2xl mx-auto shadow-2xl" style={{borderRadius: '14px', padding: '28px', background: 'white'}}>
       <CardHeader>
         <Progress value={progress} />
       </CardHeader>
@@ -133,11 +117,12 @@ export default function DoshaQuiz() {
               <Label
                 key={option.value}
                 htmlFor={option.value}
-                className={`flex flex-col items-center justify-center p-4 border rounded-lg cursor-pointer transition-colors hover:bg-accent hover:text-accent-foreground ${
-                  answers[currentQuestionIndex] === option.value
-                    ? 'bg-accent text-accent-foreground border-accent-foreground'
-                    : ''
-                }`}
+                className={`flex flex-col items-center justify-center p-4 border rounded-lg cursor-pointer transition-colors hover:bg-secondary`}
+                style={{
+                  padding: '14px',
+                  borderRadius: '8px',
+                  border: '1px solid #E8D5AF',
+                }}
               >
                 <RadioGroupItem value={option.value} id={option.value} className="sr-only" />
                 <span className="text-center">{option.text}</span>
@@ -151,4 +136,58 @@ export default function DoshaQuiz() {
       </CardFooter>
     </Card>
   );
+}
+
+
+function ResultView({ result }: { result: Dosha }) {
+    return (
+        <div className="text-center">
+            <h2 className="font-headline text-3xl font-bold">Your Ayurvedic Dosha</h2>
+            <div className="mt-8 grid gap-8 md:grid-cols-3 max-w-4xl mx-auto">
+                {doshaResultsData.map(dosha => (
+                    <Card key={dosha.name} className={`overflow-hidden shadow-lg transition-transform duration-300 ${result === dosha.name ? 'scale-105 border-2 border-primary' : ''}`} style={{borderRadius: '12px', padding: '20px', background: 'white'}}>
+                        <Image
+                            src={dosha.imageUrl}
+                            alt={`${dosha.name} Dosha Illustration`}
+                            width={150}
+                            height={150}
+                            className="w-auto h-auto mx-auto mb-4"
+                        />
+                        <CardTitle className="font-headline text-2xl">{dosha.name}</CardTitle>
+                        <CardDescription>{dosha.description}</CardDescription>
+                    </Card>
+                ))}
+            </div>
+             <div className="mt-12">
+                <Button asChild size="lg">
+                    <Link href="/activities">Unlock Your Personalized Wellness Plan</Link>
+                </Button>
+                <p className="mt-2 text-sm text-muted-foreground">Continue to discover activities tailored for your dosha.</p>
+            </div>
+        </div>
+    )
+}
+
+export default function DoshaQuiz() {
+  const [quizComplete, setQuizComplete] = useState(false);
+  const [doshaResult, setDoshaResult] = useState<Dosha | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleQuizComplete = (result: Dosha) => {
+    setLoading(true);
+    localStorage.setItem('doshaResult', result);
+    setDoshaResult(result);
+    setQuizComplete(true);
+    setLoading(false);
+  };
+
+  if (loading) {
+      return (
+          <Card className="w-full max-w-2xl mx-auto shadow-2xl flex items-center justify-center min-h-[480px]">
+              <Loader className="h-12 w-12 text-primary" />
+          </Card>
+      )
+  }
+
+  return quizComplete && doshaResult ? <ResultView result={doshaResult} /> : <QuizView onQuizComplete={handleQuizComplete} />;
 }

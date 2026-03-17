@@ -2,119 +2,132 @@
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import Image from 'next/image';
-import { useAuth } from '@/hooks/useAuth';
-import AuthGuard from '@/components/AuthGuard';
 import { Card, CardContent, CardTitle, CardDescription, CardHeader, CardFooter } from "@/components/ui/card";
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Progress } from '@/components/ui/progress';
-import { CheckCircle, Flame, Wind, Droplet, Clock, Star, Target } from 'lucide-react';
-import { db } from '@/lib/firebase';
-import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
-import { format, isToday, isYesterday } from 'date-fns';
+import { CheckCircle, Flame, Wind, Droplet, Clock, Star, Target, Zap, Sun, Sprout, Moon, BrainCircuit } from 'lucide-react';
+import { format, isToday, isYesterday, startOfDay } from 'date-fns';
 
 const allActivities = [
-  {
-    id: 'dinacharya',
-    title: 'Morning Rituals (Dinacharya)',
-    description: 'Start your day with intention through practices like oil pulling and tongue scraping to remove toxins.',
-    duration: 10,
-    imageUrl: 'https://exlaucgslmfiakllbtnq.supabase.co/storage/v1/object/public/AyurvedaIsBack/Dincharya.png',
-    doshas: ['Vata', 'Pitta', 'Kapha'],
-  },
-  {
-    id: 'pranayama',
-    title: 'Breathing Exercises (Pranayama)',
-    description: 'Harness your life force (prana) with calming techniques like Nadi Shodhana.',
-    duration: 10,
-    imageUrl: 'https://exlaucgslmfiakllbtnq.supabase.co/storage/v1/object/public/AyurvedaIsBack/Pranayama.png',
-    doshas: ['Vata', 'Pitta'],
-  },
-  {
-    id: 'herbal_infusions',
-    title: 'Herbal Infusions',
-    description: 'Sip on ginger tea to aid digestion or tulsi tea to reduce stress.',
-    duration: 5,
-    imageUrl: 'https://exlaucgslmfiakllbtnq.supabase.co/storage/v1/object/public/AyurvedaIsBack/Herbalinfusions.png',
-    doshas: ['Vata', 'Pitta', 'Kapha'],
-  },
-  {
-    id: 'nidra',
-    title: 'Sleep Hygiene (Nidra)',
-    description: 'Cultivate restful sleep with evening routines like a warm bath or gentle self-massage.',
-    duration: 15,
-    imageUrl: 'https://exlaucgslmfiakllbtnq.supabase.co/storage/v1/object/public/AyurvedaIsBack/Nidra.png',
-    doshas: ['Vata', 'Pitta'],
-  },
-  {
-    id: 'yoga',
-    title: 'Mindful Movement (Yoga)',
-    description: 'Practice yoga asanas tailored to your dosha. Gentle flows for Vata, cooling poses for Pitta.',
-    duration: 20,
-    imageUrl: 'https://exlaucgslmfiakllbtnq.supabase.co/storage/v1/object/public/AyurvedaIsBack/MindfulMovement.png',
-    doshas: ['Vata', 'Pitta', 'Kapha'],
-  },
-  {
-    id: 'abhyanga',
-    title: 'Self-Massage (Abhyanga)',
-    description: 'Nourish your body and calm your nervous system with a daily self-massage using warm oils.',
-    duration: 15,
-    imageUrl: 'https://exlaucgslmfiakllbtnq.supabase.co/storage/v1/object/public/AyurvedaIsBack/Selfmassage.png',
-    doshas: ['Vata'],
-  },
-  {
-    id: 'mindful_eating',
-    title: 'Mindful Eating',
-    description: 'Eat in a calm environment without distractions. Chew thoroughly and savor each bite.',
-    duration: 15,
-    imageUrl: 'https://exlaucgslmfiakllbtnq.supabase.co/storage/v1/object/public/AyurvedaIsBack/Mindfuleating.png',
-    doshas: ['Vata', 'Pitta', 'Kapha'],
-  },
-  {
-    id: 'meditation',
-    title: 'Meditation (Dhyana)',
-    description: 'Set aside 5-10 minutes each day to reduce stress and improve mental clarity.',
-    duration: 10,
-    imageUrl: 'https://exlaucgslmfiakllbtnq.supabase.co/storage/v1/object/public/AyurvedaIsBack/Meditation.png',
-    doshas: ['Vata', 'Pitta'],
-  },
-  {
-    id: 'digital_detox',
-    title: 'Digital Detox',
-    description: 'Disconnect from screens to reduce mental chatter and eye strain. Focus on the present.',
-    duration: 15,
-    imageUrl: 'https://exlaucgslmfiakllbtnq.supabase.co/storage/v1/object/public/AyurvedaIsBack/Nidra.png',
-    doshas: ['Vata', 'Pitta'],
-  },
-  {
-    id: 'gratitude_journaling',
-    title: 'Gratitude Journaling',
-    description: 'Write down three things you are grateful for to cultivate positivity and contentment.',
-    duration: 5,
-    imageUrl: 'https://exlaucgslmfiakllbtnq.supabase.co/storage/v1/object/public/AyurvedaIsBack/Herbalinfusions.png',
-    doshas: ['Vata', 'Pitta', 'Kapha'],
-  },
-  {
-    id: 'sun_exposure',
-    title: 'Sun Exposure',
-    description: 'Spend time in the morning sun to boost Vitamin D and regulate your circadian rhythm.',
-    duration: 10,
-    imageUrl: 'https://exlaucgslmfiakllbtnq.supabase.co/storage/v1/object/public/AyurvedaIsBack/Dincharya.png',
-    doshas: ['Kapha'],
-  },
-  {
-    id: 'walking_meditation',
-    title: 'Walking Meditation',
-    description: 'Walk slowly and mindfully, paying attention to the sensation of your feet on the ground.',
-    duration: 15,
-    imageUrl: 'https://exlaucgslmfiakllbtnq.supabase.co/storage/v1/object/public/AyurvedaIsBack/MindfulMovement.png',
-    doshas: ['Vata', 'Kapha'],
-  },
+    {
+        id: 'dinacharya',
+        title: 'Morning Rituals (Dinacharya)',
+        description: 'Start your day with intention through practices like oil pulling and tongue scraping to remove toxins.',
+        duration: 10,
+        imageUrl: 'https://exlaucgslmfiakllbtnq.supabase.co/storage/v1/object/public/AyurvedaIsBack/Dincharya.png',
+        doshas: ['Vata', 'Pitta', 'Kapha'],
+    },
+    {
+        id: 'pranayama',
+        title: 'Breathing Exercises (Pranayama)',
+        description: 'Harness your life force (prana) with calming techniques like Nadi Shodhana.',
+        duration: 10,
+        imageUrl: 'https://exlaucgslmfiakllbtnq.supabase.co/storage/v1/object/public/AyurvedaIsBack/Pranayama.png',
+        doshas: ['Vata', 'Pitta'],
+    },
+    {
+        id: 'herbal_infusions',
+        title: 'Herbal Infusions',
+        description: 'Sip on ginger tea to aid digestion or tulsi tea to reduce stress.',
+        duration: 5,
+        imageUrl: 'https://exlaucgslmfiakllbtnq.supabase.co/storage/v1/object/public/AyurvedaIsBack/Herbalinfusions.png',
+        doshas: ['Vata', 'Pitta', 'Kapha'],
+    },
+    {
+        id: 'nidra',
+        title: 'Sleep Hygiene (Nidra)',
+        description: 'Cultivate restful sleep with evening routines like a warm bath or gentle self-massage.',
+        duration: 15,
+        imageUrl: 'https://exlaucgslmfiakllbtnq.supabase.co/storage/v1/object/public/AyurvedaIsBack/Nidra.png',
+        doshas: ['Vata', 'Pitta'],
+    },
+    {
+        id: 'yoga',
+        title: 'Mindful Movement (Yoga)',
+        description: 'Practice yoga asanas tailored to your dosha. Gentle flows for Vata, cooling poses for Pitta.',
+        duration: 20,
+        imageUrl: 'https://exlaucgslmfiakllbtnq.supabase.co/storage/v1/object/public/AyurvedaIsBack/MindfulMovement.png',
+        doshas: ['Vata', 'Pitta', 'Kapha'],
+    },
+    {
+        id: 'abhyanga',
+        title: 'Self-Massage (Abhyanga)',
+        description: 'Nourish your body and calm your nervous system with a daily self-massage using warm oils.',
+        duration: 15,
+        imageUrl: 'https://exlaucgslmfiakllbtnq.supabase.co/storage/v1/object/public/AyurvedaIsBack/Selfmassage.png',
+        doshas: ['Vata'],
+    },
+    {
+        id: 'mindful_eating',
+        title: 'Mindful Eating',
+        description: 'Eat in a calm environment without distractions. Chew thoroughly and savor each bite.',
+        duration: 15,
+        imageUrl: 'https://exlaucgslmfiakllbtnq.supabase.co/storage/v1/object/public/AyurvedaIsBack/Mindfuleating.png',
+        doshas: ['Vata', 'Pitta', 'Kapha'],
+    },
+    {
+        id: 'meditation',
+        title: 'Meditation (Dhyana)',
+        description: 'Set aside 5-10 minutes each day to reduce stress and improve mental clarity.',
+        duration: 10,
+        imageUrl: 'https://exlaucgslmfiakllbtnq.supabase.co/storage/v1/object/public/AyurvedaIsBack/Meditation.png',
+        doshas: ['Vata', 'Pitta'],
+    },
+    {
+        id: 'digital_detox',
+        title: 'Digital Detox',
+        description: 'Disconnect from screens to reduce mental chatter and eye strain. Focus on the present.',
+        duration: 15,
+        imageUrl: 'https://exlaucgslmfiakllbtnq.supabase.co/storage/v1/object/public/AyurvedaIsBack/Nidra.png',
+        doshas: ['Vata', 'Pitta'],
+    },
+    {
+        id: 'gratitude_journaling',
+        title: 'Gratitude Journaling',
+        description: 'Write down three things you are grateful for to cultivate positivity and contentment.',
+        duration: 5,
+        imageUrl: 'https://exlaucgslmfiakllbtnq.supabase.co/storage/v1/object/public/AyurvedaIsBack/Herbalinfusions.png',
+        doshas: ['Vata', 'Pitta', 'Kapha'],
+    },
+    {
+        id: 'sun_exposure',
+        title: 'Sun Exposure',
+        description: 'Spend time in the morning sun to boost Vitamin D and regulate your circadian rhythm.',
+        duration: 10,
+        imageUrl: 'https://exlaucgslmfiakllbtnq.supabase.co/storage/v1/object/public/AyurvedaIsBack/Dincharya.png',
+        doshas: ['Kapha'],
+    },
+    {
+        id: 'walking_meditation',
+        title: 'Walking Meditation',
+        description: 'Walk slowly and mindfully, paying attention to the sensation of your feet on the ground.',
+        duration: 15,
+        imageUrl: 'https://exlaucgslmfiakllbtnq.supabase.co/storage/v1/object/public/AyurvedaIsBack/MindfulMovement.png',
+        doshas: ['Vata', 'Kapha'],
+    },
+    {
+        id: 'evening_reflection',
+        title: 'Evening Reflection',
+        description: 'Reflect on your day, noting moments of peace and challenges, to foster self-awareness.',
+        duration: 5,
+        imageUrl: 'https://exlaucgslmfiakllbtnq.supabase.co/storage/v1/object/public/AyurvedaIsBack/Meditation.png',
+        doshas: ['Vata', 'Pitta', 'Kapha']
+    },
+    {
+        id: 'hydration_ritual',
+        title: 'Hydration Ritual',
+        description: 'Mindfully drink a glass of warm water to aid digestion and cleanse your system.',
+        duration: 2,
+        imageUrl: 'https://exlaucgslmfiakllbtnq.supabase.co/storage/v1/object/public/AyurvedaIsBack/Herbalinfusions.png',
+        doshas: ['Vata', 'Pitta', 'Kapha']
+    }
 ];
 
 type Activity = typeof allActivities[0];
+type Dosha = 'Vata' | 'Pitta' | 'Kapha';
 
-const doshaIcons = {
+const doshaIcons: Record<Dosha, React.ElementType> = {
     Vata: Wind,
     Pitta: Flame,
     Kapha: Droplet
@@ -212,98 +225,98 @@ function ActivityCard({ activity, onStart, isCompleted }: { activity: Activity, 
 }
 
 export default function ActivitiesPage() {
-    const { user, userProfile } = useAuth();
+    const [userDosha, setUserDosha] = useState<Dosha | null>(null);
     const [completedToday, setCompletedToday] = useState<string[]>([]);
     const [streak, setStreak] = useState(0);
     const [activityForTimer, setActivityForTimer] = useState<Activity | null>(null);
-
-    const todayStr = format(new Date(), 'yyyy-MM-dd');
+    const [isClient, setIsClient] = useState(false);
 
     useEffect(() => {
-        if (!user) return;
+        setIsClient(true);
+        const dosha = localStorage.getItem('doshaResult') as Dosha | null;
+        setUserDosha(dosha);
 
-        const fetchActivityData = async () => {
-            const userRef = doc(db, 'users', user.uid);
-            const dailyLogRef = doc(db, 'users', user.uid, 'activityLog', todayStr);
-            
-            const [userSnap, dailyLogSnap] = await Promise.all([getDoc(userRef), getDoc(dailyLogRef)]);
+        const progressData = localStorage.getItem('activityProgress');
+        if (progressData) {
+            const { completed, lastDate, streakCount } = JSON.parse(progressData);
+            const lastActiveDate = new Date(lastDate);
 
-            if (dailyLogSnap.exists()) {
-                setCompletedToday(dailyLogSnap.data().completedActivities || []);
+            if (isToday(lastActiveDate)) {
+                setCompletedToday(completed);
             }
 
-            if (userSnap.exists()) {
-                const userData = userSnap.data();
-                const lastDate = userData.lastActiveDate?.toDate();
-                let currentStreak = userData.streakCount || 0;
-                if (lastDate && !isToday(lastDate) && !isYesterday(lastDate)) {
-                    currentStreak = 0;
-                }
-                setStreak(currentStreak);
+            if (lastActiveDate && isYesterday(lastActiveDate)) {
+                setStreak(streakCount);
+            } else if (!isToday(lastActiveDate)) {
+                setStreak(0);
+            } else {
+                 setStreak(streakCount);
             }
-        };
-
-        fetchActivityData();
-    }, [user, todayStr]);
-
-    const handleCompleteActivity = useCallback(async () => {
-        if (!user || !activityForTimer) return;
-    
-        const wasAlreadyCompleted = completedToday.includes(activityForTimer.id);
-        const newCompleted = [...new Set([...completedToday, activityForTimer.id])];
-        setCompletedToday(newCompleted);
-    
-        const dailyLogRef = doc(db, 'users', user.uid, 'activityLog', todayStr);
-        await setDoc(dailyLogRef, {
-            completedActivities: newCompleted,
-            date: serverTimestamp()
-        }, { merge: true });
-    
-        const userRef = doc(db, 'users', user.uid);
-
-        if (!wasAlreadyCompleted && newCompleted.length === 1) { // First activity of the day
-            const userSnap = await getDoc(userRef);
-            let newStreak = 1;
-            if (userSnap.exists()) {
-                const userData = userSnap.data();
-                const lastDate = userData.lastActiveDate?.toDate();
-                if (lastDate && isYesterday(lastDate)) {
-                    newStreak = (userData.streakCount || 0) + 1;
-                }
-            }
-            setStreak(newStreak);
-            await setDoc(userRef, { streakCount: newStreak, lastActiveDate: serverTimestamp() }, { merge: true });
-        } else { // Not the first activity, or already completed, just update date
-            await setDoc(userRef, { lastActiveDate: serverTimestamp() }, { merge: true });
         }
-    
-        setActivityForTimer(null);
-    }, [user, activityForTimer, completedToday, todayStr]);
+    }, []);
+
+    const handleCompleteActivity = useCallback((activityId: string) => {
+        setCompletedToday(prev => {
+            const newCompleted = [...new Set([...prev, activityId])];
+            
+            let newStreak = streak;
+            if (newCompleted.length === 1 && prev.length === 0) { // First activity of today
+                const progressData = localStorage.getItem('activityProgress');
+                if (progressData) {
+                    const { lastDate, streakCount } = JSON.parse(progressData);
+                    if (isYesterday(new Date(lastDate))) {
+                        newStreak = streakCount + 1;
+                    } else {
+                        newStreak = 1;
+                    }
+                } else {
+                    newStreak = 1;
+                }
+                setStreak(newStreak);
+            }
+
+            const newProgress = {
+                completed: newCompleted,
+                lastDate: startOfDay(new Date()).toISOString(),
+                streakCount: newStreak
+            };
+            localStorage.setItem('activityProgress', JSON.stringify(newProgress));
+
+            return newCompleted;
+        });
+        
+    }, [streak]);
 
     const recommendedActivities = useMemo(() => {
-        if (!userProfile?.dosha) return [];
-        return allActivities.filter(act => act.doshas.includes(userProfile.dosha!));
-    }, [userProfile?.dosha]);
+        if (!userDosha) return [];
+        return allActivities.filter(act => act.doshas.includes(userDosha));
+    }, [userDosha]);
 
     const milestones = useMemo(() => {
         const completedCount = completedToday.length;
-        const totalActivities = allActivities.length;
         return [
             { name: 'Beginner', goal: 1, achieved: completedCount >= 1 },
             { name: 'Consistent', goal: 3, achieved: completedCount >= 3 },
             { name: 'Dedicated', goal: 5, achieved: completedCount >= 5 },
-            { name: 'Balanced Day', goal: totalActivities, achieved: completedCount >= totalActivities },
+            { name: 'Balanced Day', goal: allActivities.length, achieved: completedCount >= allActivities.length },
         ];
     }, [completedToday.length]);
 
-    const DoshaIcon = userProfile?.dosha ? doshaIcons[userProfile.dosha] : null;
+    const DoshaIcon = userDosha ? doshaIcons[userDosha] : null;
+
+    if (!isClient) {
+        return null; // Or a loading spinner
+    }
 
     return (
-        <AuthGuard>
+        <>
             {activityForTimer && (
                 <ActivityTimer
                     activity={activityForTimer}
-                    onComplete={handleCompleteActivity}
+                    onComplete={() => {
+                        handleCompleteActivity(activityForTimer.id);
+                        setActivityForTimer(null);
+                    }}
                     onOpenChange={() => setActivityForTimer(null)}
                 />
             )}
@@ -353,11 +366,11 @@ export default function ActivitiesPage() {
                         </Card>
                     </div>
 
-                    {userProfile?.dosha && recommendedActivities.length > 0 && (
+                    {userDosha && recommendedActivities.length > 0 && (
                         <div className="mb-16">
                             <h2 className="font-headline text-3xl font-bold tracking-tight mb-6 flex items-center gap-3">
                                 {DoshaIcon && <DoshaIcon className="w-8 h-8 text-primary" />}
-                                Recommended for your {userProfile.dosha} Dosha
+                                Recommended for your {userDosha} Dosha
                             </h2>
                             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                                 {recommendedActivities.map(activity => (
@@ -377,6 +390,6 @@ export default function ActivitiesPage() {
                     </div>
                 </div>
             </div>
-        </AuthGuard>
+        </>
     );
 }

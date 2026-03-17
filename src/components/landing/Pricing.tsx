@@ -19,6 +19,7 @@ const premiumFeatures = [
 ];
 
 export default function Pricing() {
+  const sampoornaLink = "https://forms.gle/N2DNxKPVRcGrxLCR6";
   return (
     <section id="sampoorna-plan" className="w-full py-12 md:py-24 lg:py-32 bg-background">
       <div className="container mx-auto px-4 md:px-6">
@@ -64,7 +65,7 @@ export default function Pricing() {
             </CardContent>
             <CardFooter>
               <Button asChild variant="outline" className="w-full">
-                <Link href="/login">Get Started</Link>
+                <Link href="/quiz">Get Started</Link>
               </Button>
             </CardFooter>
           </Card>
@@ -86,6 +87,17 @@ export default function Pricing() {
                 <span className="text-4xl font-bold">₹449</span>
                 <span className="text-muted-foreground"> (per month)</span>
               </div>
+               <div className="my-6 flex justify-center">
+                  <Link href={sampoornaLink} target="_blank" rel="noopener noreferrer">
+                    <Image
+                      src="https://exlaucgslmfiakllbtnq.supabase.co/storage/v1/object/public/AyurvedaIsBack/PaymentQR.png"
+                      alt="Payment QR Code"
+                      width={150}
+                      height={150}
+                      className="rounded-lg shadow-md transition-transform hover:scale-105"
+                    />
+                  </Link>
+                </div>
               <ul className="space-y-3">
                  {freeFeatures.map(feature => (
                   <li key={feature} className="flex items-center">
@@ -103,7 +115,7 @@ export default function Pricing() {
             </CardContent>
             <CardFooter>
               <Button asChild className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
-                 <Link href="/sampoorna-checkout">Go Sampoorna</Link>
+                 <Link href={sampoornaLink} target="_blank" rel="noopener noreferrer">Go Sampoorna</Link>
               </Button>
             </CardFooter>
           </Card>

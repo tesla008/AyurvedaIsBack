@@ -3,11 +3,9 @@
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { useAuth } from '@/hooks/useAuth';
 
 export default function Hero() {
-  const { user } = useAuth();
-  const journeyLink = user ? '/activities' : '/login';
+  const journeyLink = '/quiz';
 
   return (
     <section className="relative h-[80vh] min-h-[600px] w-full">
