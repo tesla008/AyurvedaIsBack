@@ -2,12 +2,14 @@
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { Card, CardContent, CardTitle, CardDescription, CardHeader, CardFooter } from "@/components/ui/card";
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Progress } from '@/components/ui/progress';
-import { CheckCircle, Flame, Wind, Droplet, Clock, Star, Target, Zap, Sun, Sprout, Moon, BrainCircuit } from 'lucide-react';
-import { format, isToday, isYesterday, startOfDay } from 'date-fns';
+import { CheckCircle, Flame, Wind, Droplet, Clock, Target, Gift, Sun, Sprout, Moon } from 'lucide-react';
+import { isToday, isYesterday, startOfDay } from 'date-fns';
+import { useToast } from '@/hooks/use-toast';
 
 const allActivities = [
     {
@@ -126,6 +128,7 @@ const allActivities = [
 
 type Activity = typeof allActivities[0];
 type Dosha = 'Vata' | 'Pitta' | 'Kapha';
+const whatsappLink = "https://chat.whatsapp.com/LWBNO2T7JZKBhpTpwbHJuG?mode=hqctcla";
 
 const doshaIcons: Record<Dosha, React.ElementType> = {
     Vata: Wind,
@@ -145,8 +148,7 @@ function ActivityTimer({ activity, onComplete, onOpenChange }: { activity: Activ
         if (secondsLeft <= 0) {
             setIsFinished(true);
             onComplete();
-            const timerId = setTimeout(() => onOpenChange(false), 2000);
-            return () => clearTimeout(timerId);
+            return;
         }
 
         const timer = setInterval(() => {
@@ -154,7 +156,7 @@ function ActivityTimer({ activity, onComplete, onOpenChange }: { activity: Activ
         }, 1000);
 
         return () => clearInterval(timer);
-    }, [secondsLeft, isPaused, isFinished, onComplete, onOpenChange]);
+    }, [secondsLeft, isPaused, isFinished, onComplete]);
 
     const progress = ((totalSeconds - secondsLeft) / totalSeconds) * 100;
     const minutes = Math.floor(secondsLeft / 60);
@@ -171,6 +173,14 @@ function ActivityTimer({ activity, onComplete, onOpenChange }: { activity: Activ
                         <div className="flex flex-col items-center text-center space-y-4">
                             <CheckCircle className="w-20 h-20 text-green-500 animate-pulse" />
                             <p className="text-xl font-semibold">Well done!</p>
+                             <DialogDescription className="text-sm">
+                                Stay consistent with others on the same journey.
+                            </DialogDescription>
+                            <Button asChild>
+                                <Link href={whatsappLink} target="_blank">
+                                    👉 Join WhatsApp Community
+                                </Link>
+                            </Button>
                         </div>
                     ) : (
                         <>
@@ -225,6 +235,7 @@ function ActivityCard({ activity, onStart, isCompleted }: { activity: Activity, 
 }
 
 export default function ActivitiesPage() {
+    const { toast } = useToast();
     const [userDosha, setUserDosha] = useState<Dosha | null>(null);
     const [completedToday, setCompletedToday] = useState<string[]>([]);
     const [streak, setStreak] = useState(0);
@@ -243,69 +254,77 @@ export default function ActivitiesPage() {
 
             if (isToday(lastActiveDate)) {
                 setCompletedToday(completed);
-            }
-
-            if (lastActiveDate && isYesterday(lastActiveDate)) {
                 setStreak(streakCount);
-            } else if (!isToday(lastActiveDate)) {
-                setStreak(0);
+            } else if (isYesterday(lastActiveDate)) {
+                setStreak(streakCount);
+                setCompletedToday([]);
             } else {
-                 setStreak(streakCount);
+                setStreak(0);
+                setCompletedToday([]);
             }
         }
     }, []);
 
     const handleCompleteActivity = useCallback((activityId: string) => {
-        setCompletedToday(prev => {
-            const newCompleted = [...new Set([...prev, activityId])];
-            
-            let newStreak = streak;
-            if (newCompleted.length === 1 && prev.length === 0) { // First activity of today
-                const progressData = localStorage.getItem('activityProgress');
-                if (progressData) {
-                    const { lastDate, streakCount } = JSON.parse(progressData);
-                    if (isYesterday(new Date(lastDate))) {
-                        newStreak = streakCount + 1;
-                    } else {
-                        newStreak = 1;
-                    }
+        let currentStreak = streak;
+        const isFirstOfToday = completedToday.length === 0;
+
+        if (isFirstOfToday) {
+            const progressData = localStorage.getItem('activityProgress');
+            if (progressData) {
+                const { lastDate, streakCount } = JSON.parse(progressData);
+                if (isYesterday(new Date(lastDate))) {
+                    currentStreak = streakCount + 1;
                 } else {
-                    newStreak = 1;
+                    currentStreak = 1;
                 }
-                setStreak(newStreak);
+            } else {
+                currentStreak = 1;
             }
-
-            const newProgress = {
-                completed: newCompleted,
-                lastDate: startOfDay(new Date()).toISOString(),
-                streakCount: newStreak
-            };
-            localStorage.setItem('activityProgress', JSON.stringify(newProgress));
-
-            return newCompleted;
-        });
+        }
         
-    }, [streak]);
+        const newCompleted = [...new Set([...completedToday, activityId])];
+        setCompletedToday(newCompleted);
+        setStreak(currentStreak);
+
+        const newProgress = {
+            completed: newCompleted,
+            lastDate: startOfDay(new Date()).toISOString(),
+            streakCount: currentStreak
+        };
+        localStorage.setItem('activityProgress', JSON.stringify(newProgress));
+
+        const milestones: {[key: number]: string} = {
+            3: "Great start 🌿",
+            7: "You’re building discipline 🔥",
+            14: "Your lifestyle is evolving ✨",
+            21: "Ayurveda is becoming your nature 🧘"
+        };
+
+        if (isFirstOfToday && milestones[currentStreak]) {
+             setTimeout(() => {
+                toast({
+                    title: `Streak Milestone: ${currentStreak} Days!`,
+                    description: milestones[currentStreak],
+                });
+            }, 2500);
+        }
+    }, [streak, completedToday, toast]);
 
     const recommendedActivities = useMemo(() => {
         if (!userDosha) return [];
         return allActivities.filter(act => act.doshas.includes(userDosha));
     }, [userDosha]);
 
-    const milestones = useMemo(() => {
-        const completedCount = completedToday.length;
-        return [
-            { name: 'Beginner', goal: 1, achieved: completedCount >= 1 },
-            { name: 'Consistent', goal: 3, achieved: completedCount >= 3 },
-            { name: 'Dedicated', goal: 5, achieved: completedCount >= 5 },
-            { name: 'Balanced Day', goal: allActivities.length, achieved: completedCount >= allActivities.length },
-        ];
-    }, [completedToday.length]);
+    const nextMilestone = useMemo(() => {
+        const milestones = [3, 7, 14, 21];
+        return milestones.find(m => m > streak) || milestones[milestones.length - 1];
+    }, [streak]);
 
     const DoshaIcon = userDosha ? doshaIcons[userDosha] : null;
 
     if (!isClient) {
-        return null; // Or a loading spinner
+        return null;
     }
 
     return (
@@ -313,11 +332,10 @@ export default function ActivitiesPage() {
             {activityForTimer && (
                 <ActivityTimer
                     activity={activityForTimer}
-                    onComplete={() => {
-                        handleCompleteActivity(activityForTimer.id);
-                        setActivityForTimer(null);
+                    onComplete={() => handleCompleteActivity(activityForTimer.id)}
+                    onOpenChange={(isOpen) => {
+                        if(!isOpen) setActivityForTimer(null)
                     }}
-                    onOpenChange={() => setActivityForTimer(null)}
                 />
             )}
             <div className="bg-background w-full">
@@ -327,7 +345,10 @@ export default function ActivitiesPage() {
                             Daily Wellness Activities
                         </h1>
                         <p className="mt-4 text-lg text-muted-foreground">
-                            Cultivate balance and harmony by integrating these simple yet profound Ayurvedic practices into your daily routine.
+                             {streak > 0 
+                                ? `You’re building a powerful habit. Keep the momentum going!`
+                                : "Cultivate balance and harmony by integrating these simple yet profound Ayurvedic practices into your daily routine."
+                            }
                         </p>
                     </div>
 
@@ -349,18 +370,18 @@ export default function ActivitiesPage() {
                             </CardHeader>
                             <CardContent>
                                 <div className="text-2xl font-bold">{streak} {streak === 1 ? 'Day' : 'Days'}</div>
-                                <p className="text-xs text-muted-foreground">Keep the momentum going!</p>
+                                <p className="text-xs text-muted-foreground">Consistency creates balance.</p>
                             </CardContent>
                         </Card>
                          <Card>
                             <CardHeader className="flex flex-row items-center justify-between pb-2">
-                                <CardTitle className="text-sm font-medium">Milestones</CardTitle>
-                                <Star className="w-4 h-4 text-muted-foreground"/>
+                                <CardTitle className="text-sm font-medium">Next Milestone</CardTitle>
+                                <Gift className="w-4 h-4 text-muted-foreground"/>
                             </CardHeader>
                             <CardContent className="pt-4">
-                                <Progress value={milestones.filter(m => m.achieved).length / milestones.length * 100} />
+                                <Progress value={(streak / nextMilestone) * 100} />
                                 <p className="text-xs text-muted-foreground mt-2">
-                                  {milestones.findLast(m => m.achieved)?.name || 'Just starting'}
+                                  Reach a {nextMilestone}-day streak for a new badge!
                                 </p>
                             </CardContent>
                         </Card>

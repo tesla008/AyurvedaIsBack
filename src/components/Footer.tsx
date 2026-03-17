@@ -3,6 +3,7 @@ import { Logo } from './Logo';
 import { Separator } from './ui/separator';
 import Link from 'next/link';
 import { Github, Twitter, Linkedin } from 'lucide-react';
+import { Button } from './ui/button';
 
 const socialLinks = [
   { icon: Twitter, href: '#', name: 'Twitter' },
@@ -11,6 +12,7 @@ const socialLinks = [
 ];
 
 export default function Footer() {
+  const whatsappLink = "https://chat.whatsapp.com/LWBNO2T7JZKBhpTpwbHJuG?mode=hqctcla";
   return (
     <footer className="bg-secondary text-secondary-foreground">
       <div className="container mx-auto px-4 py-12 md:px-6">
@@ -29,10 +31,13 @@ export default function Footer() {
               <Link href="/careers" className="hover:text-primary">Careers</Link>
             </div>
             <div className="grid gap-2">
-              <h3 className="font-headline text-lg font-semibold">Community</h3>
-              <Link href="/doctor-onboarding" className="hover:text-primary">Doctor Onboarding</Link>
-              <Link href="/yoga-teacher-onboarding" className="hover:text-primary">Yoga Teacher Onboarding</Link>
-              <Link href="#" className="hover:text-primary">Partners</Link>
+                <h3 className="font-headline text-lg font-semibold">Community</h3>
+                <p className="text-sm text-muted-foreground">Join our Ayurveda community for daily reminders, expert tips, and group motivation.</p>
+                <Button asChild size="sm" className="mt-2 w-fit">
+                    <Link href={whatsappLink} target="_blank" rel="noopener noreferrer">
+                    Join on WhatsApp
+                    </Link>
+                </Button>
             </div>
             <div className="grid gap-2">
               <h3 className="font-headline text-lg font-semibold">Support</h3>
