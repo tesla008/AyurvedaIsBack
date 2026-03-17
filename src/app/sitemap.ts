@@ -16,6 +16,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/yoga-teacher-onboarding',
     '/shop',
     '/sampoorna-checkout',
+    '/vata-pitta-kapha-explained',
+    '/ayurvedic-routine-busy-professionals',
   ];
 
   return routes.map((route) => ({
