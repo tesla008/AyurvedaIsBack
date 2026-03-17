@@ -103,7 +103,7 @@ export default function Pricing() {
             </CardContent>
             <CardFooter>
               <Button asChild className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
-                 <Link href="/login">Go Sampoorna</Link>
+                 <Link href="/sampoorna-checkout">Go Sampoorna</Link>
               </Button>
             </CardFooter>
           </Card>
