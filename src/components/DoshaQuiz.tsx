@@ -7,6 +7,9 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { Loader } from '@/components/ui/loader';
+import { useAuth } from '@/hooks/useAuth';
+import { db } from '@/lib/firebase';
+import { doc, setDoc } from 'firebase/firestore';
 
 const questions = [
   {
@@ -58,6 +61,7 @@ export default function DoshaQuiz() {
   const [answers, setAnswers] = useState<(Dosha | null)[]>(Array(questions.length).fill(null));
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
 
   const handleAnswerChange = (value: Dosha) => {
     const newAnswers = [...answers];
@@ -81,16 +85,30 @@ export default function DoshaQuiz() {
     return sortedDoshas[0] as Dosha;
   };
 
-  const handleSubmit = (finalAnswers: (Dosha|null)[]) => {
+  const handleSubmit = async (finalAnswers: (Dosha|null)[]) => {
     setLoading(true);
     const calculatedDosha = calculateDosha(finalAnswers);
-    localStorage.setItem('doshaResult', calculatedDosha);
-    router.push('/login');
+    
+    if (user) {
+        try {
+            await setDoc(doc(db, "users", user.uid), {
+                dosha: calculatedDosha,
+                quizCompleted: true
+            }, { merge: true });
+            router.push('/dashboard');
+        } catch (e) {
+            console.error("Error saving dosha result:", e);
+            setLoading(false);
+        }
+    } else {
+        localStorage.setItem('doshaResult', calculatedDosha);
+        router.push('/login');
+    }
   };
 
   const progress = ((answers.filter(a => a !== null).length) / questions.length) * 100;
 
-  if (loading) {
+  if (loading || authLoading) {
       return (
           <Card className="w-full max-w-2xl mx-auto shadow-2xl flex items-center justify-center min-h-[480px]">
               <Loader className="h-12 w-12 text-primary" />

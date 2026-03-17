@@ -28,8 +28,10 @@ import { useToast } from '@/hooks/use-toast';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Image from 'next/image';
 import { Logo } from '@/components/Logo';
+import { useAuth } from '@/hooks/useAuth';
 
 function LoginPageContent() {
+  const { user: authUser, loading: authLoading } = useAuth();
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -43,10 +45,6 @@ function LoginPageContent() {
   const { toast } = useToast();
   const loginBg = PlaceHolderImages.find(p => p.id === 'login-background');
 
-  useEffect(() => {
-    setIsLogin(mode !== 'signup');
-  }, [mode]);
-
   const checkAndRedirect = async (user: User) => {
     const userDocRef = doc(db, 'users', user.uid);
     const userDoc = await getDoc(userDocRef);
@@ -56,6 +54,16 @@ function LoginPageContent() {
       router.push('/quiz');
     }
   };
+
+  useEffect(() => {
+    if (!authLoading && authUser) {
+      checkAndRedirect(authUser);
+    }
+  }, [authUser, authLoading, router]);
+
+  useEffect(() => {
+    setIsLogin(mode !== 'signup');
+  }, [mode]);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -126,10 +134,22 @@ function LoginPageContent() {
       toast({ title: 'Google sign-in successful!' });
       await checkAndRedirect(user);
     } catch (error: any)      {
+      if (error.code === 'auth/popup-closed-by-user') {
+        setLoading(false);
+        return;
+      }
       toast({ title: 'Google Sign-In Error', description: error.message, variant: 'destructive' });
       setLoading(false);
     }
   };
+
+  if (authLoading || authUser) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <Loader />
+      </div>
+    );
+  }
 
   return (
     <div className="relative flex min-h-[calc(100vh-4rem)] items-center justify-center p-4">
