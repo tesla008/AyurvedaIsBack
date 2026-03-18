@@ -47,7 +47,7 @@ export default function Footer() {
             </div>
             <div className="grid gap-2">
               <h3 className="font-headline text-lg font-semibold">Contact</h3>
-              <p>contact@ayurvedatips.com</p>
+              <p>ayurvedaattips@gmail.com</p>
               <div className="flex space-x-4 mt-2">
                 {socialLinks.map((social) => (
                   <Link key={social.name} href={social.href} className="text-secondary-foreground hover:text-primary">
@@ -61,7 +61,7 @@ export default function Footer() {
         </div>
         <Separator className="my-8 bg-border/50" />
         <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
-          <p className="text-sm text-muted-foreground">© {new Date().getFullYear()} Ayurveda at Tips. All rights reserved.</p>
+          <p className="text-sm text-muted-foreground">© {new Date().getFullYear()} Ayurveda At Tips. All rights reserved.</p>
           <p className="text-sm text-muted-foreground">With Love From India to the Whole World.</p>
         </div>
       </div>
