@@ -6,27 +6,27 @@ import Footer from '@/components/Footer';
 
 export const metadata: Metadata = {
   title: {
-    default: 'Discover Your Dosha | Ayurveda at Tips',
-    template: '%s | Ayurveda at Tips',
+    default: 'Discover Your Dosha | Ayurveda At Tips',
+    template: '%s | Ayurveda At Tips',
   },
   description: 'Take the free Ayurvedic dosha test and discover personalized wellness insights, Ayurvedic lifestyle practices, expert consultations, and daily wellness tips.',
   keywords: ['Ayurveda', 'dosha test', 'Vata Pitta Kapha', 'Ayurvedic lifestyle', 'Ayurvedic wellness', 'Ayurvedic diet', 'Ayurveda routine', 'Sampoorna plan'],
-  authors: [{ name: 'Ayurveda at Tips' }],
+  authors: [{ name: 'Ayurveda At Tips' }],
   metadataBase: new URL('https://ayurvedaattips.com'),
   alternates: {
     canonical: '/',
   },
   openGraph: {
-    title: 'Discover Your Dosha | Ayurveda at Tips',
+    title: 'Discover Your Dosha | Ayurveda At Tips',
     description: 'Take a free Ayurvedic dosha test and unlock personalized wellness insights.',
     url: 'https://ayurvedaattips.com',
-    siteName: 'Ayurveda at Tips',
+    siteName: 'Ayurveda At Tips',
     images: [
       {
         url: 'https://ayurvedaattips.com/preview.png',
         width: 1200,
         height: 630,
-        alt: 'Ayurveda at Tips - Discover Your Dosha',
+        alt: 'Ayurveda At Tips - Discover Your Dosha',
       },
     ],
     locale: 'en_US',
@@ -34,12 +34,12 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Discover Your Dosha | Ayurveda at Tips',
+    title: 'Discover Your Dosha | Ayurveda At Tips',
     description: 'Take a free Ayurvedic dosha test and unlock personalized wellness insights.',
     images: ['https://ayurvedaattips.com/preview.png'],
   },
   icons: {
-    icon: '/favicon.ico',
+    icon: 'https://exlaucgslmfiakllbtnq.supabase.co/storage/v1/object/public/AyurvedaIsBack/LogoN.png',
   },
 };
 
