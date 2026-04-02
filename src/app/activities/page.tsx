@@ -7,7 +7,7 @@ import { Card, CardContent, CardTitle, CardDescription, CardHeader, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Progress } from '@/components/ui/progress';
-import { CheckCircle, Flame, Wind, Droplet, Clock, Target, Gift, Sun, Sprout, Moon } from 'lucide-react';
+import { CheckCircle, Flame, Wind, Droplet, Clock, Target, Gift, Sun, Sprout, Moon, Sparkles } from 'lucide-react';
 import { isToday, isYesterday, startOfDay } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 
@@ -234,6 +234,29 @@ function ActivityCard({ activity, onStart, isCompleted }: { activity: Activity, 
   )
 }
 
+function TakeQuizPrompt() {
+    return (
+        <div className="flex items-center justify-center min-h-[calc(100vh-20rem)]">
+            <Card className="w-full max-w-lg text-center p-8 shadow-xl">
+                <CardHeader>
+                    <Sparkles className="w-12 h-12 mx-auto text-primary" />
+                    <CardTitle className="font-headline text-3xl mt-4">Personalize Your Journey</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <p className="text-muted-foreground text-lg">
+                        Discover your body type to get personalized activities. The dosha quiz takes less than 5 minutes!
+                    </p>
+                </CardContent>
+                <CardFooter className="flex justify-center">
+                    <Button asChild size="lg">
+                        <Link href="/quiz">Take the Free Dosha Test</Link>
+                    </Button>
+                </CardFooter>
+            </Card>
+        </div>
+    )
+}
+
 export default function ActivitiesPage() {
     const { toast } = useToast();
     const [userDosha, setUserDosha] = useState<Dosha | null>(null);
@@ -244,42 +267,52 @@ export default function ActivitiesPage() {
 
     useEffect(() => {
         setIsClient(true);
-        const dosha = localStorage.getItem('doshaResult') as Dosha | null;
+        const dosha = localStorage.getItem('dominantDosha') as Dosha | null;
         setUserDosha(dosha);
 
         const progressData = localStorage.getItem('activityProgress');
         if (progressData) {
-            const { completed, lastDate, streakCount } = JSON.parse(progressData);
-            const lastActiveDate = new Date(lastDate);
+            try {
+                const { completed, lastDate, streakCount } = JSON.parse(progressData);
+                const lastActiveDate = new Date(lastDate);
 
-            if (isToday(lastActiveDate)) {
-                setCompletedToday(completed);
-                setStreak(streakCount);
-            } else if (isYesterday(lastActiveDate)) {
-                setStreak(streakCount);
-                setCompletedToday([]);
-            } else {
-                setStreak(0);
-                setCompletedToday([]);
+                if (isToday(lastActiveDate)) {
+                    setCompletedToday(completed);
+                    setStreak(streakCount);
+                } else if (isYesterday(lastActiveDate)) {
+                    setStreak(streakCount);
+                    setCompletedToday([]); // Reset for the new day
+                } else {
+                    // Streak is broken
+                    setStreak(0);
+                    setCompletedToday([]);
+                }
+            } catch (error) {
+                console.error("Failed to parse activity progress", error);
+                localStorage.removeItem('activityProgress');
             }
         }
     }, []);
 
     const handleCompleteActivity = useCallback((activityId: string) => {
         let currentStreak = streak;
+        const today = new Date();
         const isFirstOfToday = completedToday.length === 0;
 
+        const progressData = localStorage.getItem('activityProgress');
         if (isFirstOfToday) {
-            const progressData = localStorage.getItem('activityProgress');
-            if (progressData) {
+             if (progressData) {
                 const { lastDate, streakCount } = JSON.parse(progressData);
-                if (isYesterday(new Date(lastDate))) {
+                const lastActiveDate = new Date(lastDate);
+                if (isYesterday(lastActiveDate)) {
                     currentStreak = streakCount + 1;
+                } else if (!isToday(lastActiveDate)) {
+                    currentStreak = 1; // Streak was broken
                 } else {
-                    currentStreak = 1;
+                    currentStreak = streakCount; // Should not happen if completedToday is empty, but as a fallback
                 }
             } else {
-                currentStreak = 1;
+                currentStreak = 1; // First activity ever
             }
         }
         
@@ -289,7 +322,7 @@ export default function ActivitiesPage() {
 
         const newProgress = {
             completed: newCompleted,
-            lastDate: startOfDay(new Date()).toISOString(),
+            lastDate: startOfDay(today).toISOString(),
             streakCount: currentStreak
         };
         localStorage.setItem('activityProgress', JSON.stringify(newProgress));
@@ -325,6 +358,16 @@ export default function ActivitiesPage() {
 
     if (!isClient) {
         return null;
+    }
+    
+    if (!userDosha) {
+        return (
+             <div className="bg-background w-full">
+                <div className="container mx-auto px-4 py-12 md:px-6 md:py-16">
+                    <TakeQuizPrompt />
+                </div>
+            </div>
+        )
     }
 
     return (

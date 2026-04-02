@@ -10,8 +10,10 @@ import { Loader } from '@/components/ui/loader';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, BookOpen, Stethoscope, CheckCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { dincharya, remedies } from '@/lib/dosha-content';
 
 
 const questions = [
@@ -111,7 +113,7 @@ function QuizView({ onQuizComplete }: { onQuizComplete: (dosha: DoshaPercentages
             newAnswers.forEach(answer => {
               if (answer) counts[answer]++;
             });
-            const total = newAnswers.length;
+            const total = newAnswers.filter(Boolean).length;
 
             if (total === 0) {
               onQuizComplete({Vata: 33, Pitta: 34, Kapha: 33});
@@ -128,6 +130,13 @@ function QuizView({ onQuizComplete }: { onQuizComplete: (dosha: DoshaPercentages
             finalPercentages[p1_name] = Math.round((sortedCounts[0][1] / total) * 100);
             finalPercentages[p2_name] = Math.round((sortedCounts[1][1] / total) * 100);
             finalPercentages[p3_name] = 100 - finalPercentages[p1_name] - finalPercentages[p2_name];
+            
+            // Ensure no percentage is negative
+            if (finalPercentages[p3_name] < 0) {
+              finalPercentages[p2_name] += finalPercentages[p3_name];
+              finalPercentages[p3_name] = 0;
+            }
+
 
             onQuizComplete(finalPercentages as DoshaPercentages);
 
@@ -196,13 +205,15 @@ function AnimatedCounter({ value }: { value: number }) {
     const totalFrames = Math.round(duration / (1000 / frameRate));
     const increment = end / totalFrames;
 
+    let currentFrame = 0;
     const timer = setInterval(() => {
-      start += increment;
-      if (start >= end) {
-        start = end;
-        clearInterval(timer);
-      }
-      setDisplayValue(Math.ceil(start));
+        currentFrame++;
+        start += increment;
+        if (currentFrame >= totalFrames) {
+            start = end;
+            clearInterval(timer);
+        }
+        setDisplayValue(Math.ceil(start));
     }, 1000 / frameRate);
 
     return () => clearInterval(timer);
@@ -212,16 +223,54 @@ function AnimatedCounter({ value }: { value: number }) {
 }
 
 
+const PersonalizedContent = ({ doshaType }: { doshaType: Dosha }) => {
+    const routine = dincharya[doshaType];
+    const remedyList = remedies[doshaType];
+
+    return (
+        <div className="space-y-8">
+            <div>
+                <h3 className="font-headline text-2xl font-bold mb-4">Your Daily Routine (Dinacharya)</h3>
+                <ul className="space-y-3">
+                    {routine.map((item, index) => (
+                        <li key={index} className="flex items-start gap-3">
+                            <CheckCircle className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
+                            <div>
+                                <p className="font-semibold">{item.title}</p>
+                                <p className="text-muted-foreground text-sm">{item.description}</p>
+                            </div>
+                        </li>
+                    ))}
+                </ul>
+            </div>
+            <div>
+                <h3 className="font-headline text-2xl font-bold mb-4">Natural Remedies for Common Issues</h3>
+                 <ul className="space-y-3">
+                    {remedyList.map((item, index) => (
+                        <li key={index} className="flex items-start gap-3">
+                            <CheckCircle className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
+                             <div>
+                                <p className="font-semibold">{item.issue}</p>
+                                <p className="text-muted-foreground text-sm">{item.remedy}</p>
+                            </div>
+                        </li>
+                    ))}
+                </ul>
+            </div>
+        </div>
+    )
+}
+
 function ResultView({ results }: { results: DoshaPercentages }) {
     const sortedDoshas = (Object.entries(results) as [Dosha, number][]).sort(([, a], [, b]) => b - a);
     const [primary, secondary] = sortedDoshas;
-    let dominantType = primary[0];
+    let dominantType = primary[0] as Dosha | string;
     let summaryText = '';
 
-    if (primary[1] > 0 && secondary && secondary[1] > 0 && primary[1] - secondary[1] <= 10) {
+    if (primary[1] > 0 && secondary && secondary[1] > 0 && primary[1] - secondary[1] <= 15) {
         const sortedPair = [primary[0], secondary[0]].sort();
         dominantType = `${sortedPair[0]}-${sortedPair[1]}`;
-        summaryText = `Your dosha balance suggests a ${dominantType} profile, blending the qualities of both energies for a unique constitution.`;
+        summaryText = `Your prakriti indicates a dual-dosha profile of ${dominantType}, blending the qualities of both energies for a unique constitution.`;
     } else {
         const getDoshaQualities = (dosha: Dosha) => {
             switch (dosha) {
@@ -231,10 +280,13 @@ function ResultView({ results }: { results: DoshaPercentages }) {
                 default: return '';
             }
         };
-        summaryText = `You are primarily ${dominantType}, which means you are naturally ${getDoshaQualities(dominantType)}.`;
+        summaryText = `You are primarily ${dominantType}, which means you are naturally ${getDoshaQualities(dominantType as Dosha)}.`;
     }
+    const doshasToDisplay = (dominantType as string).split('-') as Dosha[];
 
     const [progress, setProgress] = useState<DoshaPercentages | null>(null);
+    const whatsappLink = "https://chat.whatsapp.com/LWBNO2T7JZKBhpTpwbHJuG?mode=hqctcla";
+    const sampoornaLink = "https://forms.gle/N2DNxKPVRcGrxLCR6";
 
     useEffect(() => {
         const timer = setTimeout(() => setProgress(results), 100);
@@ -242,63 +294,107 @@ function ResultView({ results }: { results: DoshaPercentages }) {
     }, [results]);
 
     return (
-        <Card className="w-full max-w-4xl mx-auto shadow-2xl p-6 sm:p-8 md:p-12 animate-in fade-in zoom-in-95 duration-700 bg-card/80 backdrop-blur-sm rounded-2xl">
-            <CardHeader className="text-center p-0">
-                <Sparkles className="mx-auto h-12 w-12 text-primary/80" />
-                <CardTitle className="font-headline text-4xl sm:text-5xl mt-2">Your Prakriti Profile</CardTitle>
-                <CardDescription className="text-xl text-muted-foreground mt-2">
-                    Dominant Type: <span className="font-semibold text-primary">{dominantType}</span>
-                </CardDescription>
-            </CardHeader>
-            <CardContent className="p-0 mt-10">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-                    {doshaResultsData.map((dosha) => {
-                        const percentage = results[dosha.name as Dosha];
-                        const isDominant = dominantType.includes(dosha.name);
-                        
-                        return (
-                            <Card key={dosha.name} className={cn(
-                                'text-center p-6 rounded-xl transition-all duration-500 ease-out flex flex-col items-center justify-start',
-                                isDominant ? 'shadow-primary/20 shadow-xl scale-105 bg-background' : 'bg-background/50'
-                            )}>
-                               <Image
-                                  src={dosha.imageUrl}
-                                  alt={`${dosha.name} Dosha Illustration`}
-                                  width={120}
-                                  height={120}
-                                  className="w-auto h-auto object-contain aspect-square"
+        <div className="w-full max-w-5xl mx-auto">
+            <Card className="shadow-2xl p-6 sm:p-8 md:p-12 animate-in fade-in zoom-in-95 duration-700 bg-card/80 backdrop-blur-sm rounded-2xl">
+                <CardHeader className="text-center p-0">
+                    <Sparkles className="mx-auto h-12 w-12 text-primary/80" />
+                    <CardTitle className="font-headline text-4xl sm:text-5xl mt-2">Your Prakriti Profile</CardTitle>
+                    <CardDescription className="text-xl text-muted-foreground mt-2">
+                        Dominant Type: <span className="font-semibold text-primary">{dominantType}</span>
+                    </CardDescription>
+                </CardHeader>
+                <CardContent className="p-0 mt-10">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+                        {doshaResultsData.map((dosha) => {
+                            const percentage = results[dosha.name as Dosha];
+                            const isDominant = (dominantType as string).includes(dosha.name);
+                            
+                            return (
+                                <Card key={dosha.name} className={cn(
+                                    'text-center p-6 rounded-xl transition-all duration-500 ease-out flex flex-col items-center justify-start',
+                                    isDominant ? 'shadow-primary/20 shadow-xl scale-105 bg-background' : 'bg-background/50'
+                                )}>
+                                <Image
+                                    src={dosha.imageUrl}
+                                    alt={`${dosha.name} Dosha Illustration`}
+                                    width={120}
+                                    height={120}
+                                    className="w-auto h-auto object-contain aspect-square"
                                 />
-                               <p className="text-5xl font-bold mt-4" style={{fontFamily: 'Playfair Display, serif'}}>
-                                   <AnimatedCounter value={percentage} />
-                               </p>
-                               <p className="text-2xl font-headline mt-2">{dosha.name}</p>
-                               <p className="text-sm text-muted-foreground">{dosha.elements}</p>
-                            </Card>
-                        );
-                    })}
-                </div>
+                                <p className="text-5xl font-bold mt-4" style={{fontFamily: 'Playfair Display, serif'}}>
+                                    <AnimatedCounter value={percentage} />
+                                </p>
+                                <p className="text-2xl font-headline mt-2">{dosha.name}</p>
+                                <p className="text-sm text-muted-foreground">{dosha.elements}</p>
+                                </Card>
+                            );
+                        })}
+                    </div>
 
-                <div className="mt-12 space-y-4">
-                    {doshaResultsData.map(dosha => {
-                        const percentage = progress ? progress[dosha.name as Dosha] : 0;
-                        return (
-                            <div key={dosha.name} className="flex items-center gap-4 animate-in fade-in slide-in-from-bottom-4 duration-500" style={{animationDelay: `${doshaResultsData.indexOf(dosha) * 100 + 300}ms`}}>
-                                <span className="w-16 font-semibold text-muted-foreground">{dosha.name}</span>
-                                <Progress value={percentage} className="h-3 flex-1" indicatorClassName={dosha.progressColor} />
-                                <span className="w-12 text-right font-semibold">{results[dosha.name as Dosha]}%</span>
-                            </div>
-                        );
-                    })}
-                </div>
+                    <div className="mt-12 space-y-4">
+                        {doshaResultsData.map(dosha => {
+                            const percentage = progress ? progress[dosha.name as Dosha] : 0;
+                            return (
+                                <div key={dosha.name} className="flex items-center gap-4 animate-in fade-in slide-in-from-bottom-4 duration-500" style={{animationDelay: `${doshaResultsData.indexOf(dosha) * 100 + 300}ms`}}>
+                                    <span className="w-16 font-semibold text-muted-foreground">{dosha.name}</span>
+                                    <Progress value={percentage} className="h-3 flex-1" indicatorClassName={dosha.progressColor} />
+                                    <span className="w-12 text-right font-semibold">{results[dosha.name as Dosha]}%</span>
+                                </div>
+                            );
+                        })}
+                    </div>
 
-                <div className="text-center mt-12">
-                    <p className="text-lg text-foreground/80 max-w-2xl mx-auto">{summaryText}</p>
-                    <Button asChild size="lg" className="mt-8">
-                        <Link href="/activities">Explore My Personalized Routine</Link>
-                    </Button>
-                </div>
-            </CardContent>
-        </Card>
+                    <div className="text-center mt-12">
+                        <p className="text-lg text-foreground/80 max-w-3xl mx-auto">{summaryText}</p>
+                    </div>
+                </CardContent>
+            </Card>
+
+            <Tabs defaultValue="routine" className="w-full mt-12">
+                <TabsList className="grid w-full grid-cols-3">
+                    <TabsTrigger value="routine"><BookOpen className="w-4 h-4 mr-2"/>Your Daily Routine</TabsTrigger>
+                    <TabsTrigger value="remedies"><Sparkles className="w-4 h-4 mr-2"/>Natural Remedies</TabsTrigger>
+                    <TabsTrigger value="expert"><Stethoscope className="w-4 h-4 mr-2"/>Expert Advice</TabsTrigger>
+                </TabsList>
+                <TabsContent value="routine" className="mt-6">
+                    <Card className="p-6 md:p-8">
+                       {doshasToDisplay.map(dosha => <PersonalizedContent key={dosha} doshaType={dosha} />)}
+                    </Card>
+                </TabsContent>
+                <TabsContent value="remedies" className="mt-6">
+                     <Card className="p-6 md:p-8">
+                       {doshasToDisplay.map(dosha => <PersonalizedContent key={dosha} doshaType={dosha} />)}
+                    </Card>
+                </TabsContent>
+                <TabsContent value="expert" className="mt-6">
+                    <Card className="p-6 md:p-8 text-center">
+                        <h3 className="font-headline text-2xl font-bold">Talk to an Expert</h3>
+                        <p className="text-muted-foreground mt-2 max-w-xl mx-auto">Get personalized guidance from our network of Ayurvedic experts to deepen your wellness journey.</p>
+                        <Button asChild size="lg" className="mt-6">
+                            <Link href={whatsappLink} target="_blank" rel="noopener noreferrer">
+                                Chat with a Doctor on WhatsApp
+                            </Link>
+                        </Button>
+                    </Card>
+                </TabsContent>
+            </Tabs>
+            
+            <div className="mt-16 text-center bg-secondary py-12 rounded-lg">
+                <h2 className="font-headline text-3xl font-bold">Take Your Wellness Further</h2>
+                <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">The Sampoorna Plan provides structured guidance, one-on-one consultations, and advanced routines to help you achieve holistic well-being.</p>
+                <Button asChild size="lg" className="mt-6 bg-accent text-accent-foreground hover:bg-accent/90">
+                    <Link href={sampoornaLink} target="_blank" rel="noopener noreferrer">
+                        Explore the Sampoorna Plan
+                    </Link>
+                </Button>
+            </div>
+
+            <div className="text-center mt-12">
+                <Button asChild size="lg" variant="outline">
+                    <Link href="/activities">Explore All Wellness Activities</Link>
+                </Button>
+            </div>
+        </div>
     )
 }
 
@@ -312,7 +408,6 @@ export default function DoshaQuiz() {
       const storedResult = localStorage.getItem("doshaResult");
       if (storedResult) {
         const parsedResult = JSON.parse(storedResult);
-        // Basic validation
         if (parsedResult.Vata !== undefined && parsedResult.Pitta !== undefined && parsedResult.Kapha !== undefined) {
           setDoshaPercentages(parsedResult);
           setQuizComplete(true);
@@ -327,6 +422,8 @@ export default function DoshaQuiz() {
   const handleQuizComplete = (percentages: DoshaPercentages) => {
     setLoading(true);
     localStorage.setItem('doshaResult', JSON.stringify(percentages));
+    const dominantDosha = (Object.keys(percentages) as Dosha[]).reduce((a, b) => percentages[a] > percentages[b] ? a : b);
+    localStorage.setItem('dominantDosha', dominantDosha);
     
     setTimeout(() => {
         setDoshaPercentages(percentages);
